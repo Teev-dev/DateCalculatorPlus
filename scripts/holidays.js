@@ -1,5 +1,5 @@
 // Public holidays for UK, US, and Australia (2023 as an example)
-const holidays = {
+export const holidays = {
     UK: [
         "2023-01-02", // New Year's Day (observed)
         "2023-04-07", // Good Friday
