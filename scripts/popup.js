@@ -1,4 +1,9 @@
-const { addDays, format, getDay, startOfDay } = dateFns;
+// Check if date-fns library is loaded
+if (typeof dateFns === 'undefined') {
+    console.error('date-fns library not loaded');
+} else {
+    console.log('date-fns library loaded successfully');
+}
 
 console.log('date-fns available:', typeof dateFns !== 'undefined');
 
@@ -24,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Calculated date:', calculatedDate);
 
             resultDiv.classList.remove('hidden');
-            calculatedDateEl.textContent = `The ${direction === 'future' ? 'future' : 'past'} date after ${workingDays} working days is: ${format(calculatedDate, 'MMMM d, yyyy')}`;
+            calculatedDateEl.textContent = `The ${direction === 'future' ? 'future' : 'past'} date after ${workingDays} working days is: ${dateFns.format(calculatedDate, 'MMMM d, yyyy')}`;
         } catch (error) {
             console.error('Error calculating date:', error);
             resultDiv.classList.remove('hidden');
@@ -36,12 +41,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function calculateWorkingDate(startDate, workingDays, country, direction) {
     console.log('Calculating working date');
     try {
-        let currentDate = startOfDay(startDate);
+        let currentDate = dateFns.startOfDay(startDate);
         let daysToAdd = direction === 'future' ? 1 : -1;
         let workingDaysCount = 0;
 
         while (workingDaysCount < workingDays) {
-            currentDate = addDays(currentDate, daysToAdd);
+            currentDate = dateFns.addDays(currentDate, daysToAdd);
             
             if (isWorkingDay(currentDate, country)) {
                 workingDaysCount++;
@@ -58,7 +63,7 @@ function calculateWorkingDate(startDate, workingDays, country, direction) {
 
 function isWorkingDay(date, country) {
     try {
-        const dayOfWeek = getDay(date);
+        const dayOfWeek = dateFns.getDay(date);
         
         // Check if it's a weekend (Saturday or Sunday)
         if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -66,7 +71,7 @@ function isWorkingDay(date, country) {
         }
 
         // Check if it's a public holiday
-        const formattedDate = format(date, 'yyyy-MM-dd');
+        const formattedDate = dateFns.format(date, 'yyyy-MM-dd');
         return !holidays[country].includes(formattedDate);
     } catch (error) {
         console.error('Error in isWorkingDay:', error);
