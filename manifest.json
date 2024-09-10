@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Working Days Date Calculator",
+  "version": "1.0",
+  "description": "Calculate future or past dates based on working days for UK, US, and Australia",
+  "permissions": [],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
