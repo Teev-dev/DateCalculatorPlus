@@ -1,45 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Working Days Date Calculator</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Working Days Date Calculator</h1>
-        <form id="calculatorForm">
-            <div class="form-group">
-                <label for="startDate">Start Date:</label>
-                <input type="date" id="startDate" required>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Date Calculator Plus</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Date Calculator Plus</h1>
+            <form id="calculatorForm">
+                <div class="form-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate" required />
+                </div>
+                <div class="form-group">
+                    <label for="workingDays">Number of Working Days:</label>
+                    <input type="number" id="workingDays" required min="1" />
+                </div>
+                <div class="form-group">
+                    <label for="country">Country:</label>
+                    <select id="country" required>
+                        <option value="UK">United Kingdom</option>
+                        <option value="US">United States</option>
+                        <option value="AU">Australia</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="direction">Direction:</label>
+                    <select id="direction" required>
+                        <option value="future">Future</option>
+                        <option value="past">Past</option>
+                    </select>
+                </div>
+                <button type="submit">Calculate</button>
+            </form>
+            <div id="result" class="hidden">
+                <h2>Result:</h2>
+                <p id="calculatedDate"></p>
             </div>
-            <div class="form-group">
-                <label for="workingDays">Number of Working Days:</label>
-                <input type="number" id="workingDays" required min="1">
-            </div>
-            <div class="form-group">
-                <label for="country">Country:</label>
-                <select id="country" required>
-                    <option value="UK">United Kingdom</option>
-                    <option value="US">United States</option>
-                    <option value="AU">Australia</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="direction">Direction:</label>
-                <select id="direction" required>
-                    <option value="future">Future</option>
-                    <option value="past">Past</option>
-                </select>
-            </div>
-            <button type="submit">Calculate</button>
-        </form>
-        <div id="result" class="hidden">
-            <h2>Result:</h2>
-            <p id="calculatedDate"></p>
         </div>
-    </div>
-    <script src="dist/bundle.js"></script>
-</body>
+        <script src="dist/bundle.js"></script>
+    </body>
 </html>
