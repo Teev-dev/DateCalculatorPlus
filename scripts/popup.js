@@ -1,10 +1,13 @@
 import { addDays, format, getDay, startOfDay } from 'date-fns';
-import { holidays } from './holidays';
+import { updateHolidayData, getHolidayData } from './holiday_data_updater';
 
-console.log('date-fns imported successfully');
+console.log('date-fns and holiday_data_updater imported successfully');
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
+    await updateHolidayData();
+    const holidays = getHolidayData();
+    
     const form = document.getElementById('calculatorForm');
     const resultDiv = document.getElementById('result');
     const calculatedDateEl = document.getElementById('calculatedDate');
@@ -21,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Input values:', { startDate, workingDays, country, direction });
 
         try {
-            const calculatedDate = calculateWorkingDate(startDate, workingDays, country, direction);
+            const calculatedDate = calculateWorkingDate(startDate, workingDays, country, direction, holidays);
             console.log('Calculated date:', calculatedDate);
 
             resultDiv.classList.remove('hidden');
@@ -34,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function calculateWorkingDate(startDate, workingDays, country, direction) {
+function calculateWorkingDate(startDate, workingDays, country, direction, holidays) {
     console.log('Calculating working date');
     try {
         let currentDate = startOfDay(startDate);
@@ -44,7 +47,7 @@ function calculateWorkingDate(startDate, workingDays, country, direction) {
         while (workingDaysCount < workingDays) {
             currentDate = addDays(currentDate, daysToAdd);
             
-            if (isWorkingDay(currentDate, country)) {
+            if (isWorkingDay(currentDate, country, holidays)) {
                 workingDaysCount++;
             }
         }
@@ -57,7 +60,7 @@ function calculateWorkingDate(startDate, workingDays, country, direction) {
     }
 }
 
-function isWorkingDay(date, country) {
+function isWorkingDay(date, country, holidays) {
     try {
         const dayOfWeek = getDay(date);
         
