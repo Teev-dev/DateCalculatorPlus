@@ -64,3 +64,7 @@ button:hover {
 .hidden {
     display: none;
 }
+
+#calculationMode {
+    margin-bottom: 15px;
+}

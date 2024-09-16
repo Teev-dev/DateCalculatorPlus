@@ -11,12 +11,23 @@
             <h1>Date Calculator Plus</h1>
             <form id="calculatorForm">
                 <div class="form-group">
+                    <label for="calculationMode">Calculation Mode:</label>
+                    <select id="calculationMode" required>
+                        <option value="futureOrPast">Calculate Future/Past Date</option>
+                        <option value="betweenDates">Calculate Working Days Between Dates</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="startDate">Start Date:</label>
                     <input type="date" id="startDate" required />
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="endDateGroup">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" />
+                </div>
+                <div class="form-group" id="workingDaysGroup">
                     <label for="workingDays">Number of Working Days:</label>
-                    <input type="number" id="workingDays" required min="1" />
+                    <input type="number" id="workingDays" min="1" />
                 </div>
                 <div class="form-group">
                     <label for="country">Country:</label>
@@ -26,9 +37,9 @@
                         <option value="AU">Australia</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="directionGroup">
                     <label for="direction">Direction:</label>
-                    <select id="direction" required>
+                    <select id="direction">
                         <option value="future">Future</option>
                         <option value="past">Past</option>
                     </select>
@@ -37,7 +48,7 @@
             </form>
             <div id="result" class="hidden">
                 <h2>Result:</h2>
-                <p id="calculatedDate"></p>
+                <p id="calculatedResult"></p>
             </div>
         </div>
         <script src="dist/bundle.js"></script>

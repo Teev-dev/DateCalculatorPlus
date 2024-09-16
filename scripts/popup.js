@@ -1,4 +1,4 @@
-import { addDays, format, getDay, startOfDay } from 'date-fns';
+import { addDays, format, getDay, startOfDay, differenceInDays } from 'date-fns';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater';
 
 console.log('date-fns and holiday_data_updater imported successfully');
@@ -10,30 +10,44 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     const form = document.getElementById('calculatorForm');
     const resultDiv = document.getElementById('result');
-    const calculatedDateEl = document.getElementById('calculatedDate');
+    const calculatedResultEl = document.getElementById('calculatedResult');
+    const calculationModeEl = document.getElementById('calculationMode');
+    const endDateGroup = document.getElementById('endDateGroup');
+    const workingDaysGroup = document.getElementById('workingDaysGroup');
+    const directionGroup = document.getElementById('directionGroup');
+
+    calculationModeEl.addEventListener('change', function() {
+        if (this.value === 'betweenDates') {
+            endDateGroup.style.display = 'block';
+            workingDaysGroup.style.display = 'none';
+            directionGroup.style.display = 'none';
+        } else {
+            endDateGroup.style.display = 'none';
+            workingDaysGroup.style.display = 'block';
+            directionGroup.style.display = 'block';
+        }
+    });
 
     form.addEventListener('submit', function(e) {
         console.log('Form submitted');
         e.preventDefault();
         
         const startDate = new Date(document.getElementById('startDate').value);
-        const workingDays = parseInt(document.getElementById('workingDays').value);
         const country = document.getElementById('country').value;
-        const direction = document.getElementById('direction').value;
+        const calculationMode = document.getElementById('calculationMode').value;
 
-        console.log('Input values:', { startDate, workingDays, country, direction });
-
-        try {
-            const calculatedDate = calculateWorkingDate(startDate, workingDays, country, direction, holidays);
-            console.log('Calculated date:', calculatedDate);
-
-            resultDiv.classList.remove('hidden');
-            calculatedDateEl.textContent = `The ${direction === 'future' ? 'future' : 'past'} date after ${workingDays} working days is: ${format(calculatedDate, 'MMMM d, yyyy')}`;
-        } catch (error) {
-            console.error('Error calculating date:', error);
-            resultDiv.classList.remove('hidden');
-            calculatedDateEl.textContent = 'An error occurred while calculating the date. Please try again.';
+        let result;
+        if (calculationMode === 'betweenDates') {
+            const endDate = new Date(document.getElementById('endDate').value);
+            result = calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays);
+        } else {
+            const workingDays = parseInt(document.getElementById('workingDays').value);
+            const direction = document.getElementById('direction').value;
+            result = calculateWorkingDate(startDate, workingDays, country, direction, holidays);
         }
+
+        resultDiv.classList.remove('hidden');
+        calculatedResultEl.textContent = result;
     });
 });
 
@@ -53,9 +67,31 @@ function calculateWorkingDate(startDate, workingDays, country, direction, holida
         }
 
         console.log('Calculation complete, returning date:', currentDate);
-        return currentDate;
+        return `The ${direction === 'future' ? 'future' : 'past'} date after ${workingDays} working days is: ${format(currentDate, 'MMMM d, yyyy')}`;
     } catch (error) {
         console.error('Error in calculateWorkingDate:', error);
+        throw error;
+    }
+}
+
+function calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays) {
+    console.log('Calculating working days between dates');
+    try {
+        let currentDate = startOfDay(startDate);
+        const lastDate = startOfDay(endDate);
+        let workingDaysCount = 0;
+
+        while (currentDate <= lastDate) {
+            if (isWorkingDay(currentDate, country, holidays)) {
+                workingDaysCount++;
+            }
+            currentDate = addDays(currentDate, 1);
+        }
+
+        console.log('Calculation complete, working days:', workingDaysCount);
+        return `The number of working days between ${format(startDate, 'MMMM d, yyyy')} and ${format(endDate, 'MMMM d, yyyy')} is: ${workingDaysCount}`;
+    } catch (error) {
+        console.error('Error in calculateWorkingDaysBetweenDates:', error);
         throw error;
     }
 }
