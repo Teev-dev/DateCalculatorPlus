@@ -1,5 +1,5 @@
 import { addDays, format, getDay, startOfDay } from 'date-fns';
-import { updateHolidayData, getHolidayData } from './holiday_data_updater';
+import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater';
 import { countries } from './countries';
 
 console.log('date-fns, holiday_data_updater, and countries imported successfully');
@@ -7,8 +7,18 @@ console.log('Countries:', countries);
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
-    await updateHolidayData();
-    const holidays = getHolidayData();
+    try {
+        await updateHolidayData();
+        const holidays = getHolidayData();
+        const lastUpdated = getLastUpdated();
+        console.log(`Holiday data last updated: ${lastUpdated}`);
+        
+        if (!holidays) {
+            console.warn('No holiday data available. Calculations may be inaccurate.');
+        }
+    } catch (error) {
+        console.error('Failed to update holiday data:', error);
+    }
     
     const form = document.getElementById('calculatorForm');
     const resultDiv = document.getElementById('result');
@@ -22,11 +32,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    // Populate country select with virtual scroll
     populateCountrySelect(countries);
     console.log('Country select populated with all ISO 3166-1 countries');
 
-    // Add event listener for country search
     countrySearchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         const filteredCountries = countries.filter(country => 
@@ -61,18 +69,29 @@ document.addEventListener('DOMContentLoaded', async function() {
         const country = document.getElementById('country').value;
         const calculationMode = document.getElementById('calculationMode').value;
 
-        let result;
-        if (calculationMode === 'betweenDates') {
-            const endDate = new Date(document.getElementById('endDate').value);
-            result = calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays);
-        } else {
-            const workingDays = parseInt(document.getElementById('workingDays').value);
-            const direction = document.getElementById('direction').value;
-            result = calculateWorkingDate(startDate, workingDays, country, direction, holidays);
+        const holidays = getHolidayData();
+        if (!holidays || !holidays[country]) {
+            console.warn(`No holiday data available for ${country}. Calculations may be inaccurate.`);
         }
 
-        resultDiv.classList.remove('hidden');
-        calculatedResultEl.textContent = result;
+        let result;
+        try {
+            if (calculationMode === 'betweenDates') {
+                const endDate = new Date(document.getElementById('endDate').value);
+                result = calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays);
+            } else {
+                const workingDays = parseInt(document.getElementById('workingDays').value);
+                const direction = document.getElementById('direction').value;
+                result = calculateWorkingDate(startDate, workingDays, country, direction, holidays);
+            }
+
+            resultDiv.classList.remove('hidden');
+            calculatedResultEl.textContent = result;
+        } catch (error) {
+            console.error('Calculation error:', error);
+            resultDiv.classList.remove('hidden');
+            calculatedResultEl.textContent = `Error: ${error.message}`;
+        }
     });
 });
 
@@ -122,7 +141,7 @@ function calculateWorkingDate(startDate, workingDays, country, direction, holida
 
 function calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays) {
     console.log('Calculating working days between dates');
-    console.log(`Holiday data for ${country}:`, holidays[country]);
+    console.log(`Holiday data for ${country}:`, holidays ? holidays[country] : 'No data');
     try {
         let currentDate = startOfDay(startDate);
         const lastDate = startOfDay(endDate);
@@ -152,7 +171,7 @@ function isWorkingDay(date, country, holidays) {
         }
 
         const formattedDate = format(date, 'yyyy-MM-dd');
-        if (holidays[country].includes(formattedDate)) {
+        if (holidays && holidays[country] && holidays[country].includes(formattedDate)) {
             console.log(`Holiday detected for ${country}: ${formattedDate}`);
             return false;
         }

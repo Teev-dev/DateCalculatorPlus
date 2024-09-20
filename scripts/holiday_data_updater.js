@@ -39,19 +39,29 @@ export async function updateHolidayData() {
     if (isDataStale()) {
         const currentYear = new Date().getFullYear();
         const holidays = {};
+        let successfulFetches = 0;
+        let failedFetches = 0;
 
         for (const country of countries) {
-            const data = await fetchHolidayData(country.code, currentYear);
-            if (data) {
-                holidays[country.code] = parseHolidayData(data);
+            try {
+                const data = await fetchHolidayData(country.code, currentYear);
+                if (data) {
+                    holidays[country.code] = parseHolidayData(data);
+                    successfulFetches++;
+                } else {
+                    failedFetches++;
+                }
+            } catch (error) {
+                console.error(`Failed to fetch holiday data for ${country.code}:`, error);
+                failedFetches++;
             }
         }
 
         if (Object.keys(holidays).length > 0) {
             storeHolidayData(holidays);
-            console.log('Holiday data updated successfully');
+            console.log(`Holiday data updated successfully. Successful fetches: ${successfulFetches}, Failed fetches: ${failedFetches}`);
         } else {
-            console.error('Failed to update holiday data');
+            console.error('Failed to update holiday data. All fetches failed.');
         }
     } else {
         console.log('Holiday data is up to date');
@@ -61,4 +71,8 @@ export async function updateHolidayData() {
 export function getHolidayData() {
     const data = localStorage.getItem('holidayData');
     return data ? JSON.parse(data) : null;
+}
+
+export function getLastUpdated() {
+    return localStorage.getItem('lastUpdated');
 }
