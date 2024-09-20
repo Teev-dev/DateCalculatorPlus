@@ -21,9 +21,13 @@
                     <label for="startDate">Start Date:</label>
                     <input type="date" id="startDate" required />
                 </div>
+                <div class="form-group" id="endDateGroup" style="display: none;">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate" required />
+                </div>
                 <div class="form-group" id="workingDaysGroup">
                     <label for="workingDays">Number of Working Days:</label>
-                    <input type="number" id="workingDays" min="1" />
+                    <input type="number" id="workingDays" min="1" required />
                 </div>
                 <div class="form-group">
                     <label for="country">Country:</label>
@@ -35,7 +39,7 @@
                 </div>
                 <div class="form-group" id="directionGroup">
                     <label for="direction">Direction:</label>
-                    <select id="direction">
+                    <select id="direction" required>
                         <option value="future">Future</option>
                         <option value="past">Past</option>
                     </select>

@@ -14,14 +14,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     const calculationModeEl = document.getElementById('calculationMode');
     const workingDaysGroup = document.getElementById('workingDaysGroup');
     const directionGroup = document.getElementById('directionGroup');
+    const endDateGroup = document.getElementById('endDateGroup');
+    const endDateInput = document.getElementById('endDate');
+    const workingDaysInput = document.getElementById('workingDays');
 
     calculationModeEl.addEventListener('change', function() {
         if (this.value === 'betweenDates') {
             workingDaysGroup.style.display = 'none';
             directionGroup.style.display = 'none';
+            endDateGroup.style.display = 'block';
+            endDateInput.required = true;
+            workingDaysInput.required = false;
         } else {
             workingDaysGroup.style.display = 'block';
             directionGroup.style.display = 'block';
+            endDateGroup.style.display = 'none';
+            endDateInput.required = false;
+            workingDaysInput.required = true;
         }
     });
 
@@ -35,8 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         let result;
         if (calculationMode === 'betweenDates') {
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + 30); // Default to 30 days from start date
+            const endDate = new Date(document.getElementById('endDate').value);
             result = calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays);
         } else {
             const workingDays = parseInt(document.getElementById('workingDays').value);
