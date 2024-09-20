@@ -1,4 +1,4 @@
-import { addDays, format, getDay, startOfDay, differenceInDays } from 'date-fns';
+import { addDays, format, getDay, startOfDay } from 'date-fns';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater';
 import { countries } from './countries';
 
