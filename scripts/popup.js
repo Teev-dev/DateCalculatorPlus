@@ -1,7 +1,9 @@
 import { addDays, format, getDay, startOfDay, differenceInDays } from 'date-fns';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater';
+import { countries } from './countries';
 
-console.log('date-fns and holiday_data_updater imported successfully');
+console.log('date-fns, holiday_data_updater, and countries imported successfully');
+console.log('Countries:', countries);
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded');
@@ -17,6 +19,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     const endDateGroup = document.getElementById('endDateGroup');
     const endDateInput = document.getElementById('endDate');
     const workingDaysInput = document.getElementById('workingDays');
+    const countrySelect = document.getElementById('country');
+    const countrySearchInput = document.getElementById('countrySearch');
+
+    populateCountrySelect(countries);
+    console.log('Country select populated');
+
+    countrySearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const filteredCountries = countries.filter(country => 
+            country.name.toLowerCase().includes(searchTerm) || 
+            country.code.toLowerCase().includes(searchTerm)
+        );
+        populateCountrySelect(filteredCountries);
+        console.log('Country search performed:', searchTerm);
+    });
 
     calculationModeEl.addEventListener('change', function() {
         if (this.value === 'betweenDates') {
@@ -56,6 +73,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         calculatedResultEl.textContent = result;
     });
 });
+
+function populateCountrySelect(countriesList) {
+    const countrySelect = document.getElementById('country');
+    countrySelect.innerHTML = '';
+    countriesList.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.code;
+        option.innerHTML = `
+            <span class="country-option">
+                <img src="${country.flag}" alt="${country.name} flag" class="country-flag">
+                ${country.name} (${country.code})
+            </span>
+        `;
+        countrySelect.appendChild(option);
+    });
+    console.log('Country select options:', countrySelect.innerHTML);
+}
 
 function calculateWorkingDate(startDate, workingDays, country, direction, holidays) {
     console.log('Calculating working date');
@@ -106,12 +140,10 @@ function isWorkingDay(date, country, holidays) {
     try {
         const dayOfWeek = getDay(date);
         
-        // Check if it's a weekend (Saturday or Sunday)
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             return false;
         }
 
-        // Check if it's a public holiday
         const formattedDate = format(date, 'yyyy-MM-dd');
         return !holidays[country].includes(formattedDate);
     } catch (error) {
