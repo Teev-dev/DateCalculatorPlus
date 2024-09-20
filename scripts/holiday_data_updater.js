@@ -1,11 +1,8 @@
-// holiday_data_updater.js
-
 import { format, addMonths, isBefore } from 'date-fns';
+import { countries } from './countries';
 
-// Define API endpoint for OpenHolidays
 const API_ENDPOINT = 'https://openholidaysapi.org/PublicHolidays';
 
-// Function to fetch holiday data from OpenHolidays API
 async function fetchHolidayData(country, year) {
     const endpoint = `${API_ENDPOINT}?countryIsoCode=${country}&validFrom=${year}-01-01&validTo=${year}-12-31`;
     try {
@@ -21,18 +18,15 @@ async function fetchHolidayData(country, year) {
     }
 }
 
-// Function to parse holiday data
 function parseHolidayData(data) {
     return data.map(holiday => holiday.startDate);
 }
 
-// Function to store fetched data locally
 function storeHolidayData(holidays) {
     localStorage.setItem('holidayData', JSON.stringify(holidays));
     localStorage.setItem('lastUpdated', new Date().toISOString());
 }
 
-// Function to check if stored data is older than three months
 function isDataStale() {
     const lastUpdated = localStorage.getItem('lastUpdated');
     if (!lastUpdated) return true;
@@ -41,16 +35,15 @@ function isDataStale() {
     return isBefore(new Date(lastUpdated), threeMonthsAgo);
 }
 
-// Main function to update holiday data
 export async function updateHolidayData() {
     if (isDataStale()) {
         const currentYear = new Date().getFullYear();
         const holidays = {};
 
-        for (const country of ['GB', 'US', 'AU']) { // Using ISO 3166-1 alpha-2 codes
-            const data = await fetchHolidayData(country, currentYear);
+        for (const country of countries) {
+            const data = await fetchHolidayData(country.code, currentYear);
             if (data) {
-                holidays[country] = parseHolidayData(data);
+                holidays[country.code] = parseHolidayData(data);
             }
         }
 
@@ -65,7 +58,6 @@ export async function updateHolidayData() {
     }
 }
 
-// Function to get stored holiday data
 export function getHolidayData() {
     const data = localStorage.getItem('holidayData');
     return data ? JSON.parse(data) : null;
