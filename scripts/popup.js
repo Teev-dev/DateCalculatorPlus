@@ -22,9 +22,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
+    // Populate country select
     populateCountrySelect(countries);
     console.log('Country select populated');
 
+    // Add event listener for country search
     countrySearchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         const filteredCountries = countries.filter(country => 
