@@ -99,20 +99,13 @@ function populateCountrySelect(countriesList) {
     const countrySelect = document.getElementById('country');
     countrySelect.innerHTML = '';
     
-    const fragment = document.createDocumentFragment();
     countriesList.forEach(country => {
         const option = document.createElement('option');
         option.value = country.code;
-        option.innerHTML = `
-            <span class="country-option">
-                <img src="${country.flag}" alt="${country.name} flag" class="country-flag">
-                ${country.name} (${country.code})
-            </span>
-        `;
-        fragment.appendChild(option);
+        option.textContent = `${country.name} (${country.code})`;
+        countrySelect.appendChild(option);
     });
     
-    countrySelect.appendChild(fragment);
     console.log('Country select options updated');
 }
 
