@@ -1,14 +1,16 @@
 # Date Calculator Plus
 
-Date Calculator Plus is a Google Chrome extension that allows users to calculate future or past dates based on working days for the UK, US, and Australia. It also provides functionality to calculate the number of working days between two dates.
+Date Calculator Plus is a Google Chrome extension that allows users to calculate future or past dates based on working days for various countries. It also provides functionality to calculate the number of working days between two dates.
 
 ## Features
 
 - Calculate future or past dates based on a given number of working days
 - Calculate the number of working days between two dates
-- Support for three countries: United Kingdom, United States, and Australia
+- Support for multiple countries with their respective public holidays
 - Automatic handling of weekends and public holidays
 - User-friendly interface with intuitive controls
+- Country search functionality
+- Display of country flags
 
 ## Installation
 
@@ -28,7 +30,7 @@ Date Calculator Plus is a Google Chrome extension that allows users to calculate
    - Start Date
    - Number of Working Days (for Future/Past Date calculation)
    - End Date (for Working Days Between Dates calculation)
-   - Country (UK, US, or Australia)
+   - Country (use the search functionality to find your desired country)
    - Direction (Future or Past, for Future/Past Date calculation)
 4. Click "Calculate" to see the result.
 
@@ -48,6 +50,16 @@ To set up the development environment:
 4. Make changes to the source files in the `scripts` directory.
 5. Run `npm run build` to bundle the JavaScript files.
 
+### Reloading the Extension After Changes
+
+After making changes to the extension:
+
+1. Run `npm run build` to update the bundled JavaScript files.
+2. Go to `chrome://extensions/` in your Chrome browser.
+3. Find the Date Calculator Plus extension.
+4. Click the circular refresh icon next to the extension to reload it.
+5. Open the extension popup to see your changes.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -59,6 +71,5 @@ This project is licensed under the ISC License.
 ## Acknowledgments
 
 - [date-fns](https://date-fns.org/) for providing excellent date manipulation utilities
-- [UK Government API](https://www.gov.uk/bank-holidays.json) for UK bank holiday data
-- [Nager.Date API](https://date.nager.at/) for US and Australian public holiday data
-
+- [Nager.Date API](https://date.nager.at/) for public holiday data
+- [flag-icons](https://flagicons.lipis.dev/) for providing country flag icons
