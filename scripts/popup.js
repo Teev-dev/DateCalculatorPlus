@@ -122,6 +122,7 @@ function calculateWorkingDate(startDate, workingDays, country, direction, holida
 
 function calculateWorkingDaysBetweenDates(startDate, endDate, country, holidays) {
     console.log('Calculating working days between dates');
+    console.log(`Holiday data for ${country}:`, holidays[country]);
     try {
         let currentDate = startOfDay(startDate);
         const lastDate = startOfDay(endDate);
@@ -151,7 +152,11 @@ function isWorkingDay(date, country, holidays) {
         }
 
         const formattedDate = format(date, 'yyyy-MM-dd');
-        return !holidays[country].includes(formattedDate);
+        if (holidays[country].includes(formattedDate)) {
+            console.log(`Holiday detected for ${country}: ${formattedDate}`);
+            return false;
+        }
+        return true;
     } catch (error) {
         console.error('Error in isWorkingDay:', error);
         throw error;
