@@ -22,14 +22,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    // Populate country select
-    populateCountrySelect(countries);
-    console.log('Country select populated');
+    // Sort and populate country select
+    const sortedCountries = sortCountries(countries);
+    populateCountrySelect(sortedCountries);
+    console.log('Country select populated with sorted countries');
 
     // Add event listener for country search
     countrySearchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
-        const filteredCountries = countries.filter(country => 
+        const filteredCountries = sortedCountries.filter(country => 
             country.name.toLowerCase().includes(searchTerm) || 
             country.code.toLowerCase().includes(searchTerm)
         );
@@ -75,6 +76,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         calculatedResultEl.textContent = result;
     });
 });
+
+function sortCountries(countriesList) {
+    return [...countriesList].sort((a, b) => a.name.localeCompare(b.name));
+}
 
 function populateCountrySelect(countriesList) {
     const countrySelect = document.getElementById('country');
