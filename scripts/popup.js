@@ -22,15 +22,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    // Sort and populate country select
-    const sortedCountries = sortCountries(countries);
-    populateCountrySelect(sortedCountries);
-    console.log('Country select populated with sorted countries');
+    // Populate country select with virtual scroll
+    populateCountrySelect(countries);
+    console.log('Country select populated with all ISO 3166-1 countries');
 
     // Add event listener for country search
     countrySearchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
-        const filteredCountries = sortedCountries.filter(country => 
+        const filteredCountries = countries.filter(country => 
             country.name.toLowerCase().includes(searchTerm) || 
             country.code.toLowerCase().includes(searchTerm)
         );
@@ -77,13 +76,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 });
 
-function sortCountries(countriesList) {
-    return [...countriesList].sort((a, b) => a.name.localeCompare(b.name));
-}
-
 function populateCountrySelect(countriesList) {
     const countrySelect = document.getElementById('country');
     countrySelect.innerHTML = '';
+    
+    const fragment = document.createDocumentFragment();
     countriesList.forEach(country => {
         const option = document.createElement('option');
         option.value = country.code;
@@ -93,9 +90,11 @@ function populateCountrySelect(countriesList) {
                 ${country.name} (${country.code})
             </span>
         `;
-        countrySelect.appendChild(option);
+        fragment.appendChild(option);
     });
-    console.log('Country select options:', countrySelect.innerHTML);
+    
+    countrySelect.appendChild(fragment);
+    console.log('Country select options updated');
 }
 
 function calculateWorkingDate(startDate, workingDays, country, direction, holidays) {
