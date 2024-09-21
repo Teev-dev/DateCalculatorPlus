@@ -1,4 +1,4 @@
-import { addDays, format, getDay, startOfDay } from 'date-fns';
+import { addDays, format, getDay, startOfDay, differenceInBusinessDays } from 'date-fns';
 import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater';
 import { countries, areCountriesInitialized, getCountries } from './countries';
 
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    // Wait for countries to be initialized
     await waitForCountriesInitialization();
     populateCountrySelect(getCountries());
 
@@ -45,7 +44,46 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Country search performed:', searchTerm);
     });
 
-    // ... rest of the code remains unchanged ...
+    calculationModeEl.addEventListener('change', function() {
+        const isFutureOrPastMode = this.value === 'futureOrPast';
+        workingDaysGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
+        directionGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
+        endDateGroup.style.display = isFutureOrPastMode ? 'none' : 'block';
+        
+        if (isFutureOrPastMode) {
+            endDateInput.removeAttribute('required');
+            workingDaysInput.setAttribute('required', 'required');
+        } else {
+            endDateInput.setAttribute('required', 'required');
+            workingDaysInput.removeAttribute('required');
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const startDate = new Date(document.getElementById('startDate').value);
+        const country = document.getElementById('country').value;
+        const calculationMode = calculationModeEl.value;
+        
+        console.log('Form submitted with:', {
+            startDate,
+            country,
+            calculationMode
+        });
+
+        let result;
+        if (calculationMode === 'futureOrPast') {
+            const workingDays = parseInt(document.getElementById('workingDays').value);
+            const direction = document.getElementById('direction').value;
+            result = calculateFutureOrPastDate(startDate, workingDays, direction, country);
+        } else {
+            const endDate = new Date(document.getElementById('endDate').value);
+            result = calculateWorkingDaysBetweenDates(startDate, endDate, country);
+        }
+
+        resultDiv.classList.remove('hidden');
+        calculatedResultEl.textContent = result;
+    });
 });
 
 async function waitForCountriesInitialization() {
@@ -80,4 +118,42 @@ function populateCountrySelect(countriesList) {
     console.log('First 5 options:', Array.from(countrySelect.options).slice(0, 5).map(opt => opt.textContent));
 }
 
-// ... rest of the file remains unchanged
+function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
+    console.log('Calculating future or past date:', { startDate, workingDays, direction, country });
+    const holidays = getHolidayData()[country] || [];
+    let currentDate = startOfDay(startDate);
+    let remainingDays = workingDays;
+
+    while (remainingDays > 0) {
+        currentDate = direction === 'future' ? addDays(currentDate, 1) : addDays(currentDate, -1);
+        if (isWorkingDay(currentDate, holidays)) {
+            remainingDays--;
+        }
+    }
+
+    console.log('Calculated date:', currentDate);
+    return format(currentDate, 'yyyy-MM-dd');
+}
+
+function calculateWorkingDaysBetweenDates(startDate, endDate, country) {
+    console.log('Calculating working days between dates:', { startDate, endDate, country });
+    const holidays = getHolidayData()[country] || [];
+    const totalDays = differenceInBusinessDays(endDate, startDate);
+    let workingDays = totalDays;
+
+    for (let currentDate = startDate; currentDate <= endDate; currentDate = addDays(currentDate, 1)) {
+        if (!isWorkingDay(currentDate, holidays)) {
+            workingDays--;
+        }
+    }
+
+    console.log('Calculated working days:', workingDays);
+    return workingDays;
+}
+
+function isWorkingDay(date, holidays) {
+    const dayOfWeek = getDay(date);
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const isHoliday = holidays.includes(format(date, 'yyyy-MM-dd'));
+    return !isWeekend && !isHoliday;
+}
