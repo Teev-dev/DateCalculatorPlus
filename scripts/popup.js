@@ -1,6 +1,6 @@
 import { addDays, format, getDay, startOfDay, differenceInBusinessDays } from 'date-fns';
 import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater';
-import { countries, areCountriesInitialized, getCountries } from './countries';
+import { countries, getCountries } from './countries';
 
 console.log('date-fns, holiday_data_updater, and countries imported successfully');
 
@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    await waitForCountriesInitialization();
     populateCountrySelect(getCountries());
 
     countrySearchInput.addEventListener('input', function() {
@@ -85,22 +84,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         calculatedResultEl.textContent = result;
     });
 });
-
-async function waitForCountriesInitialization() {
-    console.log('Waiting for countries initialization...');
-    const maxAttempts = 50;
-    const delayMs = 100;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        if (areCountriesInitialized()) {
-            console.log('Countries initialized successfully.');
-            return;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-    }
-
-    console.warn('Countries initialization timed out. Using fallback list.');
-}
 
 function populateCountrySelect(countriesList) {
     console.log('Populating country select. Countries list length:', countriesList.length);
