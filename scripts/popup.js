@@ -138,7 +138,7 @@ function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
   let remainingDays = workingDays;
 
   while (remainingDays > 0) {
-    currentDate = direction === 'future' ? dateFns.addDays(currentDate, 1) : dateFns.addDays(currentDate, -1);
+    currentDate = dateFns.addDays(currentDate, direction === 'future' ? 1 : -1);
     if (isWorkingDay(currentDate, holidays)) {
       remainingDays--;
     }
@@ -151,13 +151,15 @@ function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
 function calculateWorkingDaysBetweenDates(startDate, endDate, country) {
   console.log('Calculating working days between dates:', { startDate, endDate, country });
   const holidays = getHolidayData()[country] || [];
-  const totalDays = dateFns.differenceInBusinessDays(endDate, startDate);
-  let workingDays = totalDays;
+  let workingDays = 0;
+  let currentDate = dateFns.startOfDay(startDate);
+  const lastDate = dateFns.startOfDay(endDate);
 
-  for (let currentDate = startDate; currentDate <= endDate; currentDate = dateFns.addDays(currentDate, 1)) {
-    if (!isWorkingDay(currentDate, holidays)) {
-      workingDays--;
+  while (dateFns.isBefore(currentDate, lastDate) || dateFns.isEqual(currentDate, lastDate)) {
+    if (isWorkingDay(currentDate, holidays)) {
+      workingDays++;
     }
+    currentDate = dateFns.addDays(currentDate, 1);
   }
 
   console.log('Calculated working days:', workingDays);
@@ -171,5 +173,9 @@ function isWorkingDay(date, holidays) {
   return !isWeekend && !isHoliday;
 }
 
-// Add this line to confirm that date-fns is loaded
+function getHolidayData() {
+  const storedData = localStorage.getItem('holidayData');
+  return storedData ? JSON.parse(storedData) : {};
+}
+
 console.log('date-fns loaded:', typeof dateFns !== 'undefined');
