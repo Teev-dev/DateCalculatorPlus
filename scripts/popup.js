@@ -17,6 +17,11 @@ async function loadModules() {
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('DOM content loaded');
   
+  if (typeof dateFns === 'undefined') {
+    console.error('date-fns is not loaded. Please check the script tag in popup.html');
+    return;
+  }
+
   const modules = await loadModules();
   if (!modules) {
     console.error('Failed to load modules. Cannot proceed.');
