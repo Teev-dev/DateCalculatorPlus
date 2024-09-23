@@ -1,9 +1,4 @@
-console.log('Checking date-fns availability...');
-if (typeof dateFns !== 'undefined') {
-  console.log('date-fns is available');
-} else {
-  console.error('date-fns is not available');
-}
+import * as dateFns from 'https://cdn.skypack.dev/date-fns';
 
 let countries = [];
 
@@ -109,22 +104,7 @@ function initializeApp() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('DOM content loaded');
-  
-  if (typeof dateFns === 'undefined') {
-    console.error('date-fns is not loaded. Attempting to load it dynamically...');
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.30.0/date-fns.min.js';
-    script.onload = () => {
-      console.log('date-fns loaded dynamically');
-      initializeApp();
-    };
-    script.onerror = () => {
-      console.error('Failed to load date-fns dynamically');
-    };
-    document.head.appendChild(script);
-  } else {
-    initializeApp();
-  }
+  initializeApp();
 
   const modules = await loadModules();
   if (!modules) {
