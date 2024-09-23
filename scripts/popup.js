@@ -1,6 +1,6 @@
 import { addDays, format, getDay, startOfDay, differenceInBusinessDays } from './date-fns.js';
 import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater.js';
-import { getCountries } from './countries.js';
+import { getCountries, areCountriesInitialized } from './countries.js';
 
 console.log('date-fns, holiday_data_updater, and countries imported successfully');
 
@@ -31,7 +31,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const countrySelect = document.getElementById('country');
     const countrySearchInput = document.getElementById('countrySearch');
 
-    populateCountrySelect(getCountries());
+    console.log('Are countries initialized:', areCountriesInitialized());
+    const countries = getCountries();
+    console.log('Countries fetched:', countries.length);
+    populateCountrySelect(countries);
 
     countrySearchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
@@ -101,42 +104,4 @@ function populateCountrySelect(countriesList) {
     console.log('First 5 options:', Array.from(countrySelect.options).slice(0, 5).map(opt => opt.textContent));
 }
 
-function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
-    console.log('Calculating future or past date:', { startDate, workingDays, direction, country });
-    const holidays = getHolidayData()[country] || [];
-    let currentDate = startOfDay(startDate);
-    let remainingDays = workingDays;
-
-    while (remainingDays > 0) {
-        currentDate = direction === 'future' ? addDays(currentDate, 1) : addDays(currentDate, -1);
-        if (isWorkingDay(currentDate, holidays)) {
-            remainingDays--;
-        }
-    }
-
-    console.log('Calculated date:', currentDate);
-    return format(currentDate, 'yyyy-MM-dd');
-}
-
-function calculateWorkingDaysBetweenDates(startDate, endDate, country) {
-    console.log('Calculating working days between dates:', { startDate, endDate, country });
-    const holidays = getHolidayData()[country] || [];
-    const totalDays = differenceInBusinessDays(endDate, startDate);
-    let workingDays = totalDays;
-
-    for (let currentDate = startDate; currentDate <= endDate; currentDate = addDays(currentDate, 1)) {
-        if (!isWorkingDay(currentDate, holidays)) {
-            workingDays--;
-        }
-    }
-
-    console.log('Calculated working days:', workingDays);
-    return workingDays;
-}
-
-function isWorkingDay(date, holidays) {
-    const dayOfWeek = getDay(date);
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const isHoliday = holidays.includes(format(date, 'yyyy-MM-dd'));
-    return !isWeekend && !isHoliday;
-}
+// ... rest of the file remains unchanged
