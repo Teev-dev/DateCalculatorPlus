@@ -1,18 +1,8 @@
-import * as dateFns from 'https://cdn.skypack.dev/date-fns';
+import * as dateFns from 'date-fns';
+import { getCountries } from './countries.js';
+import { updateHolidayData, getHolidayData } from './holiday_data_updater.js';
 
 let countries = [];
-
-async function loadModules() {
-  try {
-    const { updateHolidayData, getHolidayData, getLastUpdated } = await import('./holiday_data_updater.js');
-    const { getCountries, areCountriesInitialized } = await import('./countries.js');
-    console.log('Modules imported successfully');
-    return { updateHolidayData, getHolidayData, getLastUpdated, getCountries, areCountriesInitialized };
-  } catch (error) {
-    console.error('Error importing modules:', error);
-    return null;
-  }
-}
 
 function initializeApp() {
   console.log('Initializing app...');
@@ -32,23 +22,7 @@ function initializeApp() {
   countries = getCountries();
   console.log('Countries fetched:', countries.length, 'First 5 countries:', countries.slice(0, 5));
   
-  function populateCountrySelect(countriesList) {
-    console.log('Populating country select. Countries list length:', countriesList.length);
-    countrySelect.innerHTML = '';
-    
-    countriesList.forEach(country => {
-      const option = document.createElement('option');
-      option.value = country.code;
-      option.textContent = `${country.name} (${country.code})`;
-      countrySelect.appendChild(option);
-    });
-    
-    console.log('Country select options updated. Number of options:', countrySelect.options.length);
-    console.log('First 5 options:', Array.from(countrySelect.options).slice(0, 5).map(opt => opt.textContent));
-  }
-
   populateCountrySelect(countries);
-  console.log('Total number of options in country select:', countrySelect.options.length);
 
   countrySearchInput.addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
@@ -102,33 +76,21 @@ function initializeApp() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-  console.log('DOM content loaded');
-  initializeApp();
-
-  const modules = await loadModules();
-  if (!modules) {
-    console.error('Failed to load modules. Cannot proceed.');
-    return;
-  }
-
-  const { updateHolidayData, getHolidayData, getLastUpdated, getCountries, areCountriesInitialized } = modules;
-
-  console.log('Are countries initialized:', areCountriesInitialized());
-
-  try {
-    await updateHolidayData();
-    const holidays = getHolidayData();
-    const lastUpdated = getLastUpdated();
-    console.log(`Holiday data last updated: ${lastUpdated}`);
-    
-    if (!holidays) {
-      console.warn('No holiday data available. Calculations may be inaccurate.');
-    }
-  } catch (error) {
-    console.error('Failed to update holiday data:', error);
-  }
-});
+function populateCountrySelect(countriesList) {
+  console.log('Populating country select. Countries list length:', countriesList.length);
+  const countrySelect = document.getElementById('country');
+  countrySelect.innerHTML = '';
+  
+  countriesList.forEach(country => {
+    const option = document.createElement('option');
+    option.value = country.code;
+    option.textContent = `${country.name} (${country.code})`;
+    countrySelect.appendChild(option);
+  });
+  
+  console.log('Country select options updated. Number of options:', countrySelect.options.length);
+  console.log('First 5 options:', Array.from(countrySelect.options).slice(0, 5).map(opt => opt.textContent));
+}
 
 function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
   console.log('Calculating future or past date:', { startDate, workingDays, direction, country });
@@ -172,9 +134,22 @@ function isWorkingDay(date, holidays) {
   return !isWeekend && !isHoliday;
 }
 
-function getHolidayData() {
-  const storedData = localStorage.getItem('holidayData');
-  return storedData ? JSON.parse(storedData) : {};
-}
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('DOM content loaded');
+  initializeApp();
+
+  try {
+    await updateHolidayData();
+    const holidays = getHolidayData();
+    const lastUpdated = localStorage.getItem('lastUpdated');
+    console.log(`Holiday data last updated: ${lastUpdated}`);
+    
+    if (!holidays) {
+      console.warn('No holiday data available. Calculations may be inaccurate.');
+    }
+  } catch (error) {
+    console.error('Failed to update holiday data:', error);
+  }
+});
 
 console.log('popup.js file fully loaded');
