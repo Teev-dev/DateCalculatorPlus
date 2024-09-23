@@ -3,6 +3,9 @@ run = "npm run build"
 
 [nix]
 channel = "stable-24_05"
+pkgs = [
+  "nodejs-16_x"
+]
 
 [workflows]
 runButton = "Project"
