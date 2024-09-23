@@ -1,4 +1,9 @@
-console.log('popup.js file loaded');
+console.log('Checking date-fns availability...');
+if (typeof dateFns !== 'undefined') {
+  console.log('date-fns is available');
+} else {
+  console.error('date-fns is not available');
+}
 
 let countries = [];
 
@@ -14,37 +19,8 @@ async function loadModules() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-  console.log('DOM content loaded');
-  
-  if (typeof dateFns === 'undefined') {
-    console.error('date-fns is not loaded. Please check the script tag in popup.html');
-    return;
-  }
-
-  const modules = await loadModules();
-  if (!modules) {
-    console.error('Failed to load modules. Cannot proceed.');
-    return;
-  }
-
-  const { updateHolidayData, getHolidayData, getLastUpdated, getCountries, areCountriesInitialized } = modules;
-
-  console.log('Are countries initialized:', areCountriesInitialized());
-
-  try {
-    await updateHolidayData();
-    const holidays = getHolidayData();
-    const lastUpdated = getLastUpdated();
-    console.log(`Holiday data last updated: ${lastUpdated}`);
-    
-    if (!holidays) {
-      console.warn('No holiday data available. Calculations may be inaccurate.');
-    }
-  } catch (error) {
-    console.error('Failed to update holiday data:', error);
-  }
-  
+function initializeApp() {
+  console.log('Initializing app...');
   const form = document.getElementById('calculatorForm');
   const resultDiv = document.getElementById('result');
   const calculatedResultEl = document.getElementById('calculatedResult');
@@ -129,6 +105,49 @@ document.addEventListener('DOMContentLoaded', async function() {
     resultDiv.classList.remove('hidden');
     calculatedResultEl.textContent = result;
   });
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('DOM content loaded');
+  
+  if (typeof dateFns === 'undefined') {
+    console.error('date-fns is not loaded. Attempting to load it dynamically...');
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.30.0/date-fns.min.js';
+    script.onload = () => {
+      console.log('date-fns loaded dynamically');
+      initializeApp();
+    };
+    script.onerror = () => {
+      console.error('Failed to load date-fns dynamically');
+    };
+    document.head.appendChild(script);
+  } else {
+    initializeApp();
+  }
+
+  const modules = await loadModules();
+  if (!modules) {
+    console.error('Failed to load modules. Cannot proceed.');
+    return;
+  }
+
+  const { updateHolidayData, getHolidayData, getLastUpdated, getCountries, areCountriesInitialized } = modules;
+
+  console.log('Are countries initialized:', areCountriesInitialized());
+
+  try {
+    await updateHolidayData();
+    const holidays = getHolidayData();
+    const lastUpdated = getLastUpdated();
+    console.log(`Holiday data last updated: ${lastUpdated}`);
+    
+    if (!holidays) {
+      console.warn('No holiday data available. Calculations may be inaccurate.');
+    }
+  } catch (error) {
+    console.error('Failed to update holiday data:', error);
+  }
 });
 
 function calculateFutureOrPastDate(startDate, workingDays, direction, country) {
@@ -178,4 +197,4 @@ function getHolidayData() {
   return storedData ? JSON.parse(storedData) : {};
 }
 
-console.log('date-fns loaded:', typeof dateFns !== 'undefined');
+console.log('popup.js file fully loaded');
