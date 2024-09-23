@@ -1,6 +1,6 @@
-import { addDays, format, getDay, startOfDay, differenceInBusinessDays } from 'date-fns';
-import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater';
-import { countries, getCountries } from './countries';
+import { addDays, format, getDay, startOfDay, differenceInBusinessDays } from './date-fns.js';
+import { updateHolidayData, getHolidayData, getLastUpdated } from './holiday_data_updater.js';
+import { getCountries } from './countries.js';
 
 console.log('date-fns, holiday_data_updater, and countries imported successfully');
 

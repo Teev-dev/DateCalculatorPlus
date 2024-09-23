@@ -36,29 +36,25 @@ Date Calculator Plus is a Google Chrome extension that allows users to calculate
 
 ## Development
 
-This extension is built using HTML, CSS, and JavaScript. It uses the following libraries and tools:
+This extension is built using HTML, CSS, and JavaScript. It uses the following libraries:
 
 - date-fns: For date manipulation and calculations
-- Webpack: For bundling JavaScript files
-- Node.js and npm: For managing dependencies and build processes
 
 To set up the development environment:
 
-1. Ensure you have Node.js and npm installed.
+1. Ensure you have Python installed on your system.
 2. Clone the repository and navigate to the project directory.
-3. Run `npm install` to install dependencies.
+3. Run the development server using the command: `python -m http.server 8000`
 4. Make changes to the source files in the `scripts` directory.
-5. Run `npm run build` to bundle the JavaScript files.
 
 ### Reloading the Extension After Changes
 
 After making changes to the extension:
 
-1. Run `npm run build` to update the bundled JavaScript files.
-2. Go to `chrome://extensions/` in your Chrome browser.
-3. Find the Date Calculator Plus extension.
-4. Click the circular refresh icon next to the extension to reload it.
-5. Open the extension popup to see your changes.
+1. Go to `chrome://extensions/` in your Chrome browser.
+2. Find the Date Calculator Plus extension.
+3. Click the circular refresh icon next to the extension to reload it.
+4. Open the extension popup to see your changes.
 
 ## Contributing
 
@@ -71,5 +67,5 @@ This project is licensed under the ISC License.
 ## Acknowledgments
 
 - [date-fns](https://date-fns.org/) for providing excellent date manipulation utilities
-- [Nager.Date API](https://date.nager.at/) for public holiday data
+- [OpenHolidays API](https://openholidaysapi.org/) for public holiday data
 - [flag-icons](https://flagicons.lipis.dev/) for providing country flag icons
