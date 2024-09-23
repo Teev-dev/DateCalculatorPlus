@@ -1,4 +1,4 @@
-import * as dateFns from 'date-fns';
+import * as dateFns from '../lib/date-fns.umd.min.js';
 import { getCountries } from './countries.js';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater.js';
 
