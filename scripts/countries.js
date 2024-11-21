@@ -1,6 +1,6 @@
 console.log('countries.js file loaded');
-
-import countriesData from './countriesData.js';
+console.log('Attempting to import countriesData...');
+import countriesData from '../countriesData.js';
 console.log('countriesData imported:', countriesData);
 
 export const countries = Object.entries(countriesData).map(([code, country]) => ({
