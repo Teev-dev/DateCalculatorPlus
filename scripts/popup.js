@@ -1,28 +1,31 @@
-import * as dateFns from '../node_modules/date-fns/esm/index.js';
+import * as dateFns from '../lib/date-fns.umd.min.js';
 import { getCountries } from './countries.js';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater.js';
 
 let countries = [];
 
 function initializeApp() {
-  console.log('Initializing app...');
-  const form = document.getElementById('calculatorForm');
-  const resultDiv = document.getElementById('result');
-  const calculatedResultEl = document.getElementById('calculatedResult');
-  const calculationModeEl = document.getElementById('calculationMode');
-  const workingDaysGroup = document.getElementById('workingDaysGroup');
-  const directionGroup = document.getElementById('directionGroup');
-  const endDateGroup = document.getElementById('endDateGroup');
-  const endDateInput = document.getElementById('endDate');
-  const workingDaysInput = document.getElementById('workingDays');
-  const countrySelect = document.getElementById('country');
-  const countrySearchInput = document.getElementById('countrySearch');
+  try {
+    console.log('Initializing app...');
+    const form = document.getElementById('calculatorForm');
+    const resultDiv = document.getElementById('result');
+    const calculatedResultEl = document.getElementById('calculatedResult');
+    const calculationModeEl = document.getElementById('calculationMode');
+    const workingDaysGroup = document.getElementById('workingDaysGroup');
+    const directionGroup = document.getElementById('directionGroup');
+    const endDateGroup = document.getElementById('endDateGroup');
+    const endDateInput = document.getElementById('endDate');
+    const workingDaysInput = document.getElementById('workingDays');
+    const countrySelect = document.getElementById('country');
+    const countrySearchInput = document.getElementById('countrySearch');
 
-  console.log('About to fetch countries');
-  countries = getCountries();
-  console.log('Countries fetched:', countries.length, 'First 5 countries:', countries.slice(0, 5));
-  
-  populateCountrySelect(countries);
+    console.log('About to fetch countries');
+    countries = getCountries();
+    console.log('Countries fetched:', countries);
+    if (!countries || countries.length === 0) {
+      throw new Error('No countries data available');
+    }
+    populateCountrySelect(countries);
 
   countrySearchInput.addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();

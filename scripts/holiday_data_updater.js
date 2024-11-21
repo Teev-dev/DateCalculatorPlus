@@ -1,4 +1,4 @@
-import * as dateFns from '../node_modules/date-fns/esm/index.js';
+import * as dateFns from '../lib/date-fns.umd.min.js';
 import { countries } from './countries';
 
 const API_ENDPOINT = 'https://openholidaysapi.org/PublicHolidays';
