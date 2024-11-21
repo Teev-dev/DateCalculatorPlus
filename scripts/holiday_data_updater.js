@@ -1,4 +1,4 @@
-import { format, addMonths, isBefore } from 'date-fns';
+import * as dateFns from '../node_modules/date-fns/esm/index.js';
 import { countries } from './countries';
 
 const API_ENDPOINT = 'https://openholidaysapi.org/PublicHolidays';
@@ -31,8 +31,8 @@ function isDataStale() {
     const lastUpdated = localStorage.getItem('lastUpdated');
     if (!lastUpdated) return true;
 
-    const threeMonthsAgo = addMonths(new Date(), -3);
-    return isBefore(new Date(lastUpdated), threeMonthsAgo);
+    const threeMonthsAgo = dateFns.addMonths(new Date(), -3);
+    return dateFns.isBefore(new Date(lastUpdated), threeMonthsAgo);
 }
 
 export async function updateHolidayData() {
