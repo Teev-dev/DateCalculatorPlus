@@ -1,9 +1,12 @@
 console.log('countries.js file loaded');
 
-// Import from the correct location
-import { countries as countriesList } from 'countries-list';
+// Define a subset of countries for testing
+const countriesList = {
+  'US': { name: 'United States' },
+  'GB': { name: 'United Kingdom' },
+  'AU': { name: 'Australia' }
+};
 
-// Transform the data into our required format
 export const countries = Object.entries(countriesList).map(([code, country]) => ({
   code,
   name: country.name,
