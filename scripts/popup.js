@@ -1,10 +1,10 @@
-import * as dateFns from '../lib/date-fns.umd.min.js';
+import dateFns from '../lib/date-fns.umd.min.js';
 import { getCountries } from './countries.js';
 import { updateHolidayData, getHolidayData } from './holiday_data_updater.js';
 
 let countries = [];
 
-function initializeApp() {
+async function initializeApp() {
   try {
     console.log('Initializing app...');
     const form = document.getElementById('calculatorForm');
@@ -22,61 +22,73 @@ function initializeApp() {
     console.log('About to fetch countries');
     countries = getCountries();
     console.log('Countries fetched:', countries);
+
     if (!countries || countries.length === 0) {
       throw new Error('No countries data available');
     }
+
     populateCountrySelect(countries);
 
-  countrySearchInput.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const filteredCountries = countries.filter(country => 
-      country.name.toLowerCase().includes(searchTerm) || 
-      country.code.toLowerCase().includes(searchTerm)
-    );
-    populateCountrySelect(filteredCountries);
-    console.log('Country search performed:', searchTerm);
-  });
-
-  calculationModeEl.addEventListener('change', function() {
-    const isFutureOrPastMode = this.value === 'futureOrPast';
-    workingDaysGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
-    directionGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
-    endDateGroup.style.display = isFutureOrPastMode ? 'none' : 'block';
-    
-    if (isFutureOrPastMode) {
-      endDateInput.removeAttribute('required');
-      workingDaysInput.setAttribute('required', 'required');
-    } else {
-      endDateInput.setAttribute('required', 'required');
-      workingDaysInput.removeAttribute('required');
-    }
-  });
-
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const startDate = new Date(document.getElementById('startDate').value);
-    const country = document.getElementById('country').value;
-    const calculationMode = calculationModeEl.value;
-    
-    console.log('Form submitted with:', {
-      startDate,
-      country,
-      calculationMode
+    countrySearchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const filteredCountries = countries.filter(country => 
+        country.name.toLowerCase().includes(searchTerm) || 
+        country.code.toLowerCase().includes(searchTerm)
+      );
+      populateCountrySelect(filteredCountries);
+      console.log('Country search performed:', searchTerm);
     });
 
-    let result;
-    if (calculationMode === 'futureOrPast') {
-      const workingDays = parseInt(document.getElementById('workingDays').value);
-      const direction = document.getElementById('direction').value;
-      result = calculateFutureOrPastDate(startDate, workingDays, direction, country);
-    } else {
-      const endDate = new Date(document.getElementById('endDate').value);
-      result = calculateWorkingDaysBetweenDates(startDate, endDate, country);
-    }
+    calculationModeEl.addEventListener('change', function() {
+      const isFutureOrPastMode = this.value === 'futureOrPast';
+      workingDaysGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
+      directionGroup.style.display = isFutureOrPastMode ? 'block' : 'none';
+      endDateGroup.style.display = isFutureOrPastMode ? 'none' : 'block';
+      
+      if (isFutureOrPastMode) {
+        endDateInput.removeAttribute('required');
+        workingDaysInput.setAttribute('required', 'required');
+      } else {
+        endDateInput.setAttribute('required', 'required');
+        workingDaysInput.removeAttribute('required');
+      }
+    });
 
-    resultDiv.classList.remove('hidden');
-    calculatedResultEl.textContent = result;
-  });
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const startDate = new Date(document.getElementById('startDate').value);
+      const country = document.getElementById('country').value;
+      const calculationMode = calculationModeEl.value;
+      
+      console.log('Form submitted with:', {
+        startDate,
+        country,
+        calculationMode
+      });
+
+      let result;
+      try {
+        if (calculationMode === 'futureOrPast') {
+          const workingDays = parseInt(document.getElementById('workingDays').value);
+          const direction = document.getElementById('direction').value;
+          result = calculateFutureOrPastDate(startDate, workingDays, direction, country);
+        } else {
+          const endDate = new Date(document.getElementById('endDate').value);
+          result = calculateWorkingDaysBetweenDates(startDate, endDate, country);
+        }
+
+        resultDiv.classList.remove('hidden');
+        calculatedResultEl.textContent = result;
+      } catch (error) {
+        console.error('Error calculating result:', error);
+        calculatedResultEl.textContent = 'Error: Could not calculate result';
+      }
+    });
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    const countrySelect = document.getElementById('country');
+    countrySelect.innerHTML = '<option value="">Error loading countries</option>';
+  }
 }
 
 function populateCountrySelect(countriesList) {
@@ -139,8 +151,7 @@ function isWorkingDay(date, holidays) {
 
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('DOM content loaded');
-  initializeApp();
-
+  
   try {
     await updateHolidayData();
     const holidays = getHolidayData();
@@ -150,8 +161,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!holidays) {
       console.warn('No holiday data available. Calculations may be inaccurate.');
     }
+    
+    await initializeApp();
   } catch (error) {
     console.error('Failed to update holiday data:', error);
+    try {
+      await initializeApp(); // Still try to initialize the app even if holiday data fails
+    } catch (initError) {
+      console.error('Failed to initialize app:', initError);
+    }
   }
 });
 

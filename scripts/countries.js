@@ -1,24 +1,22 @@
 console.log('countries.js file loaded');
-console.log('Attempting to import countriesData...');
-import countriesData from '../countriesData.js';
-console.log('countriesData imported:', countriesData);
 
-export const countries = Object.entries(countriesData).map(([code, country]) => ({
+// Import from the correct location
+import { countries as countriesList } from 'countries-list';
+
+// Transform the data into our required format
+export const countries = Object.entries(countriesList).map(([code, country]) => ({
   code,
   name: country.name,
   flag: `https://flagcdn.com/w20/${code.toLowerCase()}.png`
 })).sort((a, b) => a.name.localeCompare(b.name));
 
-console.log('countries array created, length:', countries.length);
+console.log('Countries array created:', countries.length, 'countries');
 
 export function getCountries() {
-  console.log('getCountries called, returning:', countries.length, 'countries');
-  console.log('First 5 countries:', countries.slice(0, 5));
+  if (!countries || countries.length === 0) {
+    console.error('No countries data available');
+    return [];
+  }
+  console.log('Returning countries:', countries.length);
   return countries;
-}
-
-export function areCountriesInitialized() {
-  const initialized = countries.length > 0;
-  console.log('areCountriesInitialized called, returning:', initialized);
-  return initialized;
 }

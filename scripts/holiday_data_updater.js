@@ -1,4 +1,4 @@
-import * as dateFns from '../lib/date-fns.umd.min.js';
+import dateFns from '../lib/date-fns.umd.min.js';
 import { countries } from './countries';
 
 const API_ENDPOINT = 'https://openholidaysapi.org/PublicHolidays';
@@ -31,8 +31,9 @@ function isDataStale() {
     const lastUpdated = localStorage.getItem('lastUpdated');
     if (!lastUpdated) return true;
 
-    const threeMonthsAgo = dateFns.addMonths(new Date(), -3);
-    return dateFns.isBefore(new Date(lastUpdated), threeMonthsAgo);
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    return new Date(lastUpdated) < threeMonthsAgo;
 }
 
 export async function updateHolidayData() {
