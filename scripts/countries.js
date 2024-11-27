@@ -1,11 +1,7 @@
-console.log('countries.js file loaded');
+import { countries as countriesList } from 'countries-list';
 
-// Define a subset of countries for testing
-const countriesList = {
-  'US': { name: 'United States' },
-  'GB': { name: 'United Kingdom' },
-  'AU': { name: 'Australia' }
-};
+console.log('countries.js file loaded');
+console.log('Importing countries from countries-list package');
 
 export const countries = Object.entries(countriesList).map(([code, country]) => ({
   code,
@@ -16,6 +12,7 @@ export const countries = Object.entries(countriesList).map(([code, country]) => 
 console.log('Countries array created:', countries.length, 'countries');
 
 export function getCountries() {
+  console.log('getCountries called');
   if (!countries || countries.length === 0) {
     console.error('No countries data available');
     return [];

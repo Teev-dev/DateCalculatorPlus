@@ -161,15 +161,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!holidays) {
       console.warn('No holiday data available. Calculations may be inaccurate.');
     }
-    
-    await initializeApp();
   } catch (error) {
     console.error('Failed to update holiday data:', error);
-    try {
-      await initializeApp(); // Still try to initialize the app even if holiday data fails
-    } catch (initError) {
-      console.error('Failed to initialize app:', initError);
-    }
+  }
+
+  try {
+    await initializeApp();
+  } catch (initError) {
+    console.error('Failed to initialize app:', initError);
   }
 });
 
