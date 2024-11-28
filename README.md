@@ -1,18 +1,24 @@
 # Date Calculator Plus
 
-Date Calculator Plus is a web application that allows users to calculate future or past dates based on working days for various countries. It also provides functionality to calculate the number of working days between two dates.
+A powerful date calculator that works both as a web application and Chrome extension, helping users calculate working days between dates while considering holidays for different countries.
 
-## Features
+## 🌟 Features
 
-- Calculate future or past dates based on a given number of working days
-- Calculate the number of working days between two dates
-- Support for multiple countries with their respective public holidays
+- Calculate future/past dates based on working days
+- Calculate working days between two dates
+- Support for multiple countries and their holidays
 - Automatic handling of weekends and public holidays
-- User-friendly interface with intuitive controls
-- Country search functionality
-- Display of country flags
+- Country search with flag display
+- Works both as a web app and Chrome extension
 
-## Usage
+## 🚀 Live Demo
+
+- Web App: [Your Web App URL]
+- Chrome Extension: [Chrome Web Store URL]
+
+## 🛠️ Installation
+
+### Web Application
 
 1. Visit the web application at [your-url-here]
 2. Choose the calculation mode:
