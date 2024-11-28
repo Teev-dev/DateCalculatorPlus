@@ -1,10 +1,10 @@
 import dateFns from '../lib/date-fns.umd.min.js';
 import { countries } from './countries';
 
-const API_ENDPOINT = 'https://openholidaysapi.org/PublicHolidays';
+const API_ENDPOINT = 'https://date.nager.at/api/v3/PublicHolidays';
 
 async function fetchHolidayData(country, year) {
-    const endpoint = `${API_ENDPOINT}?countryIsoCode=${country}&validFrom=${year}-01-01&validTo=${year}-12-31`;
+    const endpoint = `${API_ENDPOINT}/${year}/${country}`;
     try {
         const response = await fetch(endpoint);
         if (!response.ok) {
@@ -19,7 +19,7 @@ async function fetchHolidayData(country, year) {
 }
 
 function parseHolidayData(data) {
-    return data.map(holiday => holiday.startDate);
+    return data.map(holiday => holiday.date);
 }
 
 function storeHolidayData(holidays) {

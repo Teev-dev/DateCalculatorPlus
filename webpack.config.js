@@ -1,19 +1,14 @@
 const path = require('path');
 
 module.exports = {
-  entry: './scripts/popup.js',
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+  mode: 'development',
+  entry: {
+    popup: './scripts/popup.js',
+    web: './scripts/web.js'
   },
-  mode: 'production',
-  resolve: {
-    extensions: ['.js'],
-    modules: [path.resolve(__dirname, 'node_modules')],
-    fallback: {
-      "path": false,
-      "fs": false
-    }
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
   },
   module: {
     rules: [
