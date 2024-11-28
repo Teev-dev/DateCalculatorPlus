@@ -1,5 +1,5 @@
+import dateFns from '../lib/date-fns.umd.min.js';
 import { getCountries } from './countries.js';
-import { addBusinessDays, subBusinessDays, differenceInBusinessDays } from 'date-fns';
 import { getHolidayData } from './holiday_data_updater.js';
 
 export function initializeCalculator() {
@@ -21,7 +21,6 @@ export function initializeCalculator() {
         countrySelect.appendChild(option);
     });
 
-    // Handle calculation mode changes
     calculationMode.addEventListener('change', function() {
         const isBetweenDates = this.value === 'betweenDates';
         workingDaysGroup.style.display = isBetweenDates ? 'none' : 'block';
@@ -29,7 +28,6 @@ export function initializeCalculator() {
         directionGroup.style.display = isBetweenDates ? 'none' : 'block';
     });
 
-    // Handle form submission
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         const startDate = new Date(document.getElementById('startDate').value);
@@ -55,33 +53,38 @@ export function initializeCalculator() {
 }
 
 function calculateWorkingDaysBetween(startDate, endDate, holidays) {
-    // Adjust for holidays
-    const businessDays = differenceInBusinessDays(endDate, startDate);
-    const holidaysInRange = holidays.filter(holiday => {
-        const holidayDate = new Date(holiday);
-        return holidayDate >= startDate && holidayDate <= endDate;
-    });
-    return businessDays - holidaysInRange.length;
+    let workingDays = 0;
+    let currentDate = dateFns.startOfDay(startDate);
+    const lastDate = dateFns.startOfDay(endDate);
+
+    while (dateFns.isBefore(currentDate, lastDate) || dateFns.isEqual(currentDate, lastDate)) {
+        if (isWorkingDay(currentDate, holidays)) {
+            workingDays++;
+        }
+        currentDate = dateFns.addDays(currentDate, 1);
+    }
+
+    return workingDays;
 }
 
 function calculateDate(startDate, workingDays, direction, holidays) {
-    const calculateFunc = direction === 'future' ? addBusinessDays : subBusinessDays;
-    let resultDate = calculateFunc(startDate, workingDays);
-    
-    // Adjust for holidays
-    let additionalDays = 0;
-    holidays.forEach(holiday => {
-        const holidayDate = new Date(holiday);
-        if (direction === 'future' && holidayDate > startDate && holidayDate <= resultDate) {
-            additionalDays++;
-        } else if (direction === 'past' && holidayDate < startDate && holidayDate >= resultDate) {
-            additionalDays++;
-        }
-    });
+    let currentDate = dateFns.startOfDay(startDate);
+    let remainingDays = workingDays;
 
-    if (additionalDays > 0) {
-        resultDate = calculateFunc(resultDate, additionalDays);
+    while (remainingDays > 0) {
+        currentDate = dateFns.addDays(currentDate, direction === 'future' ? 1 : -1);
+        if (isWorkingDay(currentDate, holidays)) {
+            remainingDays--;
+        }
     }
 
-    return resultDate;
+    return currentDate;
+}
+
+function isWorkingDay(date, holidays) {
+    const dayOfWeek = dateFns.getDay(date);
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const dateString = dateFns.format(date, 'yyyy-MM-dd');
+    const isHoliday = holidays.includes(dateString);
+    return !isWeekend && !isHoliday;
 } 
