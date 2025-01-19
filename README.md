@@ -2,6 +2,41 @@
 
 Date Calculator Plus is a Google Chrome extension that allows users to calculate future or past dates based on working days for various countries. It also provides functionality to calculate the number of working days between two dates.
 
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+   - Copy `.env.template` to `.env`
+   - Fill in your API keys and tokens:
+     - `REACT_APP_HOLIDAY_API_KEY`: Your holiday API key (if required)
+     - `REACT_APP_GITHUB_TOKEN`: Your GitHub personal access token
+
+   To create a GitHub personal access token:
+   1. Go to GitHub Settings > Developer settings > Personal access tokens
+   2. Click "Generate new token"
+   3. Select the necessary scopes for your application
+   4. Copy the token and paste it in your `.env` file
+
+   Note: Never commit your `.env` file or share your tokens publicly!
+
+4. Start the development server:
+```bash
+npm start
+```
+
+## Available Scripts
+
+- `npm start` - Runs the app in development mode
+- `npm test` - Launches the test runner
+- `npm run build` - Builds the app for production
+- `npm run lint` - Runs the linter
+- `npm run format` - Formats code with Prettier
+
 ## Features
 
 - Calculate future or past dates based on a given number of working days
@@ -11,6 +46,8 @@ Date Calculator Plus is a Google Chrome extension that allows users to calculate
 - User-friendly interface with intuitive controls
 - Country search functionality
 - Display of country flags
+- Real-time calculations
+- Responsive design
 
 ## Installation
 
@@ -69,3 +106,10 @@ This project is licensed under the ISC License.
 - [date-fns](https://date-fns.org/) for providing excellent date manipulation utilities
 - [OpenHolidays API](https://openholidaysapi.org/) for public holiday data
 - [flag-icons](https://flagicons.lipis.dev/) for providing country flag icons
+
+## Security Notes
+
+- Environment variables prefixed with `REACT_APP_` are exposed to the client
+- The GitHub token should only have the minimum required permissions
+- Regularly rotate your access tokens
+- Monitor token usage in GitHub security settings
