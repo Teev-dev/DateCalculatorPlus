@@ -1,33 +1,45 @@
 {
-  "name": "datecalculatorplus",
+  "name": "date-calculator-plus",
   "version": "1.0.0",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "description": "Chrome extension for calculating working days across different countries",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx webpack",
-    "dev": "npx webpack serve --mode development --open",
-    "start": "node index.js"
+    "start": "webpack serve --config config/webpack.config.js --mode development --open",
+    "build": "webpack --config config/webpack.config.js --mode production",
+    "dev": "webpack serve --config config/webpack.config.js --mode development",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "cypress run",
+    "cypress:open": "cypress open",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --write \"src/**/*.{js,css,html}\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
-    "babel-loader": "^9.2.1",
-    "countries-list": "^3.1.1",
-    "country-list": "^2.3.0",
-    "date-fns": "^2.30.0",
-    "node-fetch": "^3.3.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.0",
+    "date-fns": "^2.x.x"
   },
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0"
-  }
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.7",
+    "@babel/preset-react": "^7.x.x",
+    "babel-loader": "^8.x.x",
+    "css-loader": "^6.x.x",
+    "style-loader": "^3.x.x",
+    "webpack": "^5.x.x",
+    "webpack-cli": "^4.x.x",
+    "webpack-dev-server": "^4.x.x",
+    "html-webpack-plugin": "^5.x.x",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "eslint": "^8.x.x",
+    "prettier": "^2.x.x",
+    "babel-jest": "^29.7.0",
+    "cypress": "^13.6.2"
+  },
+  "author": "",
+  "license": "ISC"
 }

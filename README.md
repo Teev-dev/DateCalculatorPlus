@@ -1,26 +1,28 @@
 # Date Calculator Plus
 
-A powerful date calculator that works both as a web application and Chrome extension, helping users calculate working days between dates while considering holidays for different countries.
+Date Calculator Plus is a Google Chrome extension that allows users to calculate future or past dates based on working days for various countries. It also provides functionality to calculate the number of working days between two dates.
 
-## 🌟 Features
+## Features
 
-- Calculate future/past dates based on working days
-- Calculate working days between two dates
-- Support for multiple countries and their holidays
+- Calculate future or past dates based on a given number of working days
+- Calculate the number of working days between two dates
+- Support for multiple countries with their respective public holidays
 - Automatic handling of weekends and public holidays
-- Country search with flag display
-- Works both as a web app and Chrome extension
+- User-friendly interface with intuitive controls
+- Country search functionality
+- Display of country flags
 
-## 🚀 Live Demo
+## Installation
 
-- Web App: [Your Web App URL]
-- Chrome Extension: [Chrome Web Store URL]
+1. Download the extension files or clone the repository.
+2. Open Google Chrome and navigate to `chrome://extensions/`.
+3. Enable "Developer mode" in the top right corner.
+4. Click "Load unpacked" and select the directory containing the extension files.
+5. The Date Calculator Plus extension should now appear in your Chrome toolbar.
 
-## 🛠️ Installation
+## Usage
 
-### Web Application
-
-1. Visit the web application at [your-url-here]
+1. Click on the Date Calculator Plus icon in your Chrome toolbar to open the extension popup.
 2. Choose the calculation mode:
    - "Calculate Future/Past Date": To find a date in the future or past based on working days
    - "Calculate Working Days Between Dates": To count working days between two dates
@@ -34,17 +36,25 @@ A powerful date calculator that works both as a web application and Chrome exten
 
 ## Development
 
-This application is built using HTML, CSS, and JavaScript. It uses the following libraries:
+This extension is built using HTML, CSS, and JavaScript. It uses the following libraries:
 
 - date-fns: For date manipulation and calculations
-- countries-list: For country data
 
 To set up the development environment:
 
-1. Clone the repository and navigate to the project directory
-2. Run `npm install` to install dependencies
-3. Run `npm run dev` to start the development server
-4. Visit `http://localhost:8080` in your browser
+1. Ensure you have Python installed on your system.
+2. Clone the repository and navigate to the project directory.
+3. Run the development server using the command: `python -m http.server 8000`
+4. Make changes to the source files in the `scripts` directory.
+
+### Reloading the Extension After Changes
+
+After making changes to the extension:
+
+1. Go to `chrome://extensions/` in your Chrome browser.
+2. Find the Date Calculator Plus extension.
+3. Click the circular refresh icon next to the extension to reload it.
+4. Open the extension popup to see your changes.
 
 ## Contributing
 
