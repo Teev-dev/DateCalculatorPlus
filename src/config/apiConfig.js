@@ -1,11 +1,35 @@
+// Default configuration values
+const DEFAULT_CONFIG = {
+  HOLIDAY_API_BASE_URL: 'https://date.nager.at/api/v3',
+  HOLIDAY_API_KEY: '',
+  ENABLE_HOLIDAY_CACHING: true,
+  MAX_YEAR_RANGE: 5,
+  DEFAULT_COUNTRY: 'United States',
+  DEFAULT_WORKING_DAYS_PER_MONTH: 21
+};
+
+// Security headers for API requests
+const SECURITY_HEADERS = {
+  'Accept': 'application/json'
+};
+
+// Helper function to safely get environment variables
+const getEnvVar = (key, defaultValue) => {
+  try {
+    return process.env[key] ?? defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
+};
+
 // API Configuration
 export const API_CONFIG = {
   HOLIDAY_API: {
-    BASE_URL: process.env.REACT_APP_HOLIDAY_API_BASE_URL || 'https://date.nager.at/api/v3',
-    API_KEY: process.env.REACT_APP_HOLIDAY_API_KEY,
+    BASE_URL: getEnvVar('REACT_APP_HOLIDAY_API_BASE_URL', DEFAULT_CONFIG.HOLIDAY_API_BASE_URL),
+    API_KEY: getEnvVar('REACT_APP_HOLIDAY_API_KEY', DEFAULT_CONFIG.HOLIDAY_API_KEY),
     ENDPOINTS: {
-      PUBLIC_HOLIDAYS: '/PublicHolidays',
-      AVAILABLE_COUNTRIES: '/AvailableCountries',
+      PUBLIC_HOLIDAYS: 'PublicHolidays',
+      AVAILABLE_COUNTRIES: 'AvailableCountries'
     },
     CACHE_DURATION: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   },
@@ -13,16 +37,16 @@ export const API_CONFIG = {
 
 // Feature Configuration
 export const FEATURES = {
-  ENABLE_HOLIDAY_CACHING: process.env.REACT_APP_ENABLE_HOLIDAY_CACHING === 'true',
-  MAX_YEAR_RANGE: parseInt(process.env.REACT_APP_MAX_YEAR_RANGE || '5', 10),
+  ENABLE_HOLIDAY_CACHING: getEnvVar('REACT_APP_ENABLE_HOLIDAY_CACHING', 'true') === 'true',
+  MAX_YEAR_RANGE: parseInt(getEnvVar('REACT_APP_MAX_YEAR_RANGE', DEFAULT_CONFIG.MAX_YEAR_RANGE), 10),
 };
 
 // Function to initialize app defaults
 export const initializeAppDefaults = async () => {
-  const defaultCountry = await getUserCountry() || 'United States'; // Get user's country or fallback
+  const defaultCountry = await getUserCountry() || DEFAULT_CONFIG.DEFAULT_COUNTRY;
   return {
     DEFAULT_COUNTRY: defaultCountry,
-    WORKING_DAYS_PER_MONTH: parseInt(process.env.REACT_APP_DEFAULT_WORKING_DAYS_PER_MONTH || '21', 10),
+    WORKING_DAYS_PER_MONTH: parseInt(getEnvVar('REACT_APP_DEFAULT_WORKING_DAYS_PER_MONTH', DEFAULT_CONFIG.DEFAULT_WORKING_DAYS_PER_MONTH), 10),
   };
 };
 
@@ -94,33 +118,118 @@ export class APIError extends Error {
 
 // API Response handler
 export const handleAPIResponse = async (response) => {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new APIError(
-      error.message || 'An error occurred while fetching data',
-      response.status,
-      error.code
-    );
+  const contentType = response.headers.get('content-type');
+  const isJson = contentType && contentType.includes('application/json');
+  
+  if (!response.ok || !isJson) {
+    console.error('API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      contentType: contentType
+    });
+    
+    // Get the raw text of the response for debugging
+    const responseText = await response.text();
+    console.error('Response text:', responseText.substring(0, 200) + '...');
+    
+    let errorMessage;
+    if (!isJson) {
+      errorMessage = `Invalid response format (expected JSON, got ${contentType})`;
+    } else {
+      try {
+        const error = JSON.parse(responseText);
+        errorMessage = error.message;
+      } catch {
+        errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
+      }
+    }
+    
+    throw new APIError(errorMessage, response.status);
   }
+  
   return response.json();
 };
 
-// API Request builder
-export const createAPIRequest = (endpoint, options = {}) => {
-  const url = new URL(endpoint, API_CONFIG.HOLIDAY_API.BASE_URL);
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(API_CONFIG.HOLIDAY_API.API_KEY && {
-      'Authorization': `Bearer ${API_CONFIG.HOLIDAY_API.API_KEY}`
-    }),
-    ...options.headers,
-  };
+// Request validation
+const validateRequest = (endpoint) => {
+  try {
+    const url = new URL(endpoint);
+    if (!url.href.startsWith(API_CONFIG.HOLIDAY_API.BASE_URL)) {
+      console.error('Invalid API endpoint:', {
+        endpoint,
+        baseUrl: API_CONFIG.HOLIDAY_API.BASE_URL,
+        url: url.href
+      });
+      throw new APIError('Invalid API endpoint', 400);
+    }
+    return url;
+  } catch (error) {
+    if (error instanceof APIError) throw error;
+    throw new APIError('Invalid URL format', 400);
+  }
+};
 
-  return new Request(url.toString(), {
-    ...options,
-    headers,
-  });
+// Rate limiting configuration
+const RATE_LIMIT = {
+  MAX_REQUESTS: 100,
+  TIME_WINDOW: 60 * 60 * 1000, // 1 hour in milliseconds
+  requests: new Map()
+};
+
+// Rate limiting implementation
+const checkRateLimit = (endpoint) => {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT.TIME_WINDOW;
+  
+  // Clean up old requests
+  for (const [key, timestamps] of RATE_LIMIT.requests.entries()) {
+    RATE_LIMIT.requests.set(key, timestamps.filter(time => time > windowStart));
+    if (RATE_LIMIT.requests.get(key).length === 0) {
+      RATE_LIMIT.requests.delete(key);
+    }
+  }
+  
+  // Check current endpoint's rate limit
+  const timestamps = RATE_LIMIT.requests.get(endpoint) || [];
+  if (timestamps.length >= RATE_LIMIT.MAX_REQUESTS) {
+    throw new APIError('Rate limit exceeded. Please try again later.', 429);
+  }
+  
+  // Add new request timestamp
+  timestamps.push(now);
+  RATE_LIMIT.requests.set(endpoint, timestamps);
+};
+
+// API Request builder with enhanced security
+export const createAPIRequest = (endpoint) => {
+  try {
+    // Check rate limit
+    checkRateLimit(endpoint);
+    
+    const url = validateRequest(endpoint);
+    
+    const headers = {
+      ...SECURITY_HEADERS,
+      ...(API_CONFIG.HOLIDAY_API.API_KEY && {
+        'Authorization': `Bearer ${API_CONFIG.HOLIDAY_API.API_KEY}`
+      })
+    };
+
+    return new Request(url.toString(), {
+      method: 'GET',
+      headers,
+      mode: 'cors',
+      cache: 'default',
+      credentials: 'omit'
+    });
+  } catch (error) {
+    console.error('Request creation error:', error);
+    if (error instanceof APIError) {
+      throw error;
+    }
+    throw new APIError('Invalid request configuration', 400);
+  }
 };
 
 // Utility function to validate year range
