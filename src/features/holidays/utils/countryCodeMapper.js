@@ -1,44 +1,49 @@
-// Map of country names to ISO 3166-1 alpha-2 codes
-export const countryToCode = {
-  'United States': 'US',
-  'United Kingdom': 'GB',
-  'Canada': 'CA',
-  'Australia': 'AU',
-  'Germany': 'DE',
-  'France': 'FR',
-  'Spain': 'ES',
-  'Italy': 'IT',
-  'Japan': 'JP',
-  'China': 'CN',
-  'India': 'IN',
-  'Brazil': 'BR',
-  'Mexico': 'MX',
-  'Netherlands': 'NL',
-  'Belgium': 'BE',
-  'Switzerland': 'CH',
-  'Austria': 'AT',
-  'Portugal': 'PT',
-  'Sweden': 'SE',
-  'Norway': 'NO'
+import { getAvailableCountries as fetchCountriesFromAPI } from '../services/holidayApiService';
+
+let countriesCache = null;
+let codeToCountryCache = null;
+
+export const initializeCountries = async () => {
+  try {
+    const countries = await fetchCountriesFromAPI();
+    countriesCache = countries.reduce((acc, country) => ({
+      ...acc,
+      [country.name]: country.countryCode
+    }), {});
+
+    codeToCountryCache = countries.reduce((acc, country) => ({
+      ...acc,
+      [country.countryCode]: country.name
+    }), {});
+
+    return countries;
+  } catch (error) {
+    console.error('Failed to initialize countries:', error);
+    return [];
+  }
 };
 
-// Reverse mapping for code to country name
-export const codeToCountry = Object.entries(countryToCode).reduce(
-  (acc, [country, code]) => ({
-    ...acc,
-    [code]: country,
-  }),
-  {}
-);
-
 // Get array of available countries for dropdown
-export const getAvailableCountries = () => Object.keys(countryToCode).sort();
+export const getAvailableCountries = async () => {
+  if (!countriesCache) {
+    await initializeCountries();
+  }
+  return Object.keys(countriesCache || {}).sort();
+};
 
 // Validate country code
 export const isValidCountryCode = (code) => {
-  console.log('Validating code:', code);
-  console.log('Valid codes:', Object.values(countryToCode));
-  return Object.values(countryToCode).includes(code);
+  return codeToCountryCache ? Object.keys(codeToCountryCache).includes(code) : false;
+};
+
+// Get country code from name
+export const getCountryCode = (name) => {
+  return countriesCache ? countriesCache[name] : null;
+};
+
+// Get country name from code
+export const getCountryName = (code) => {
+  return codeToCountryCache ? codeToCountryCache[code] : null;
 };
 
 // Format country name for display
