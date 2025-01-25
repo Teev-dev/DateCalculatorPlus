@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { formatDate, parseDate, calculateWorkingDays, addWorkingDays } from '../utils/dateUtils';
 import { getHolidaysForCountry } from '../../holidays/services/holidayApiService';
-import { countryToCode } from '../../holidays/utils/countryCodeMapper';
+import { getAvailableCountries, getCountryCode, getCountryName } from '../../holidays/utils/countryCodeMapper';
 import { addMonths, addDays, format } from 'date-fns';
 
 const CalculatorForm = () => {
@@ -14,6 +14,25 @@ const CalculatorForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [countries, setCountries] = useState([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+
+  // Load available countries
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const availableCountries = await getAvailableCountries();
+        setCountries(availableCountries);
+      } catch (err) {
+        console.error('Error loading countries:', err);
+        setError('Failed to load countries');
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+
+    loadCountries();
+  }, []);
 
   // Get current year for holiday fetching
   const currentYear = new Date().getFullYear();
@@ -72,7 +91,7 @@ const CalculatorForm = () => {
 
       // Fetch holidays for all years in the range
       for (let year = startYear; year <= endYear; year++) {
-        const countryCode = countryToCode[selectedCountry];
+        const countryCode = getCountryCode(selectedCountry);
         const yearHolidays = await getHolidaysForCountry(countryCode, year);
         allHolidays.push(...yearHolidays.map(h => h.date));
       }
@@ -137,7 +156,7 @@ const CalculatorForm = () => {
       setError(null);
 
       try {
-        const countryCode = countryToCode[selectedCountry];
+        const countryCode = getCountryCode(selectedCountry);
         const holidayData = await getHolidaysForCountry(countryCode, currentYear);
         setHolidays(holidayData.map(h => h.date));
       } catch (err) {
@@ -153,146 +172,81 @@ const CalculatorForm = () => {
 
   const handleCalculate = async (e) => {
     e.preventDefault();
-    
+    setError(null);
+    setResult(null);
+
     // Input validation
     if (!selectedCountry) {
       setError('Please select a country');
       return;
     }
 
-    if (!validateDate(startDate)) {
-      setError('Invalid start date format');
+    const countryCode = getCountryCode(selectedCountry);
+    if (!countryCode) {
+      setError('Invalid country selection');
       return;
     }
 
-    if (calculationType === 'duration') {
-      if (!validateDate(endDate)) {
-        setError('Invalid end date format');
-        return;
-      }
-    } else {
-      if (!validateWorkingDays(workingDays)) {
-        setError('Working days must be between 1 and 1000');
-        return;
-      }
-    }
-
-    setError(null);
-    setResult(null);
-    setLoading(true);
-
     try {
-      // Sanitize inputs
-      const sanitizedCountry = sanitizeInput(selectedCountry);
-      const sanitizedStartDate = sanitizeInput(startDate);
-      
+      setLoading(true);
+
+      // Fetch holidays for the relevant years
+      const years = new Set();
       if (calculationType === 'duration') {
-        const sanitizedEndDate = sanitizeInput(endDate);
-        const start = parseDate(sanitizedStartDate);
-        const end = parseDate(sanitizedEndDate);
-        
-        if (!start || !end) {
-          throw new Error('Please enter valid dates');
+        if (!validateDate(startDate) || !validateDate(endDate)) {
+          throw new Error('Invalid date format. Please use YYYY-MM-DD');
         }
-
-        // Fetch holidays for the entire period
-        const startYear = start.getFullYear();
-        const endYear = end.getFullYear();
-        const allHolidays = [];
-
-        for (let year = startYear; year <= endYear; year++) {
-          const countryCode = countryToCode[sanitizedCountry];
-          const yearHolidays = await getHolidaysForCountry(countryCode, year);
-          allHolidays.push(...yearHolidays.map(h => h.date));
+        const startYear = new Date(startDate).getFullYear();
+        const endYear = new Date(endDate).getFullYear();
+        years.add(startYear);
+        if (startYear !== endYear) {
+          years.add(endYear);
         }
-
-        // Calculate working days
-        const actualWorkingDays = calculateWorkingDays(start, end, allHolidays);
-
-        // Get holidays that fall within the period
-        const holidaysInPeriod = allHolidays.filter(
-          holiday => new Date(holiday) >= start && new Date(holiday) <= end
-        );
-
-        setResult(
-          <div>
-            <div className="result-header">
-              Calculation results for {sanitizedCountry || 'selected period'}
-            </div>
-            <div className="result-details">
-              <div className="result-row">
-                <span className="result-label">Start date:</span>
-                <span className="result-value">{formatDate(start, 'MMMM d, yyyy')}</span>
-              </div>
-              <div className="result-row end-date">
-                <span className="result-label">End date:</span>
-                <span className="result-value highlight">{formatDate(end, 'MMMM d, yyyy')}</span>
-              </div>
-              <div className="result-row">
-                <span className="result-label">Working days:</span>
-                <span className="result-value">{actualWorkingDays}</span>
-              </div>
-              <div className="result-row">
-                <span className="result-label">Holidays in period:</span>
-                <span className="result-value">{holidaysInPeriod.length}</span>
-              </div>
-            </div>
-          </div>
-        );
       } else {
-        const sanitizedWorkingDays = Number(sanitizeInput(workingDays));
-        const start = parseDate(sanitizedStartDate);
-        
-        if (!start || isNaN(sanitizedWorkingDays)) {
-          throw new Error('Please enter a valid date and number of days');
+        if (!validateDate(startDate)) {
+          throw new Error('Invalid date format. Please use YYYY-MM-DD');
         }
-
-        // First calculate an approximate end date to determine the year range
-        const approximateEnd = addWorkingDays(start, sanitizedWorkingDays, holidays);
-        const startYear = start.getFullYear();
-        const endYear = approximateEnd.getFullYear();
-        const allHolidays = [];
-
-        // Fetch holidays for all years in the range
-        for (let year = startYear; year <= endYear; year++) {
-          const countryCode = countryToCode[sanitizedCountry];
-          const yearHolidays = await getHolidaysForCountry(countryCode, year);
-          allHolidays.push(...yearHolidays.map(h => h.date));
+        if (!validateWorkingDays(workingDays)) {
+          throw new Error('Working days must be a number between 1 and 1000');
         }
+        const startYear = new Date(startDate).getFullYear();
+        years.add(startYear);
+        years.add(startYear + 1); // Fetch next year in case calculation spans years
+      }
 
-        // Calculate final end date with all holidays considered
-        const finalEnd = addWorkingDays(start, sanitizedWorkingDays, allHolidays);
+      // Fetch holidays for all required years
+      const holidayPromises = Array.from(years).map(year =>
+        getHolidaysForCountry(countryCode, year)
+      );
+      const holidayResults = await Promise.all(holidayPromises);
+      const allHolidays = holidayResults.flat();
 
-        // Get holidays that fall within the period
-        const holidaysInPeriod = allHolidays.filter(
-          holiday => new Date(holiday) >= start && new Date(holiday) <= finalEnd
+      let calculationResult;
+      if (calculationType === 'duration') {
+        calculationResult = await calculateWorkingDays(
+          parseDate(startDate),
+          parseDate(endDate),
+          allHolidays
         );
-
-        setResult(
-          <div>
-            <div className="result-header">Calculation results for {sanitizedCountry}</div>
-            <div className="result-details">
-              <div className="result-row">
-                <span className="result-label">Start date:</span>
-                <span className="result-value">{formatDate(start, 'MMMM d, yyyy')}</span>
-              </div>
-              <div className="result-row end-date">
-                <span className="result-label">End date:</span>
-                <span className="result-value highlight">{formatDate(finalEnd, 'MMMM d, yyyy')}</span>
-              </div>
-              <div className="result-row">
-                <span className="result-label">Working days:</span>
-                <span className="result-value">{sanitizedWorkingDays}</span>
-              </div>
-              <div className="result-row">
-                <span className="result-label">Holidays in period:</span>
-                <span className="result-value">{holidaysInPeriod.length}</span>
-              </div>
-            </div>
-          </div>
+        setResult({
+          startDate: formatDate(parseDate(startDate)),
+          endDate: formatDate(parseDate(endDate)),
+          workingDays: calculationResult
+        });
+      } else {
+        calculationResult = await addWorkingDays(
+          parseDate(startDate),
+          parseInt(workingDays, 10),
+          allHolidays
         );
+        setResult({
+          startDate: formatDate(parseDate(startDate)),
+          endDate: formatDate(calculationResult),
+          workingDays: parseInt(workingDays, 10)
+        });
       }
     } catch (err) {
+      console.error('Calculation error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -305,45 +259,37 @@ const CalculatorForm = () => {
     setStartDate(format(date, 'yyyy-MM-dd'));
   };
 
+  if (loadingCountries) {
+    return <div>Loading countries...</div>;
+  }
+
   return (
     <div className="calculator-form">
       <h2>Working Days Calculator</h2>
       
       <form onSubmit={handleCalculate}>
         <div className="form-group">
-          <label>Calculation Type:</label>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                value="duration"
-                checked={calculationType === 'duration'}
-                onChange={(e) => setCalculationType(e.target.value)}
-              />
-              Calculate Duration
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="endDate"
-                checked={calculationType === 'endDate'}
-                onChange={(e) => setCalculationType(e.target.value)}
-              />
-              Calculate End Date
-            </label>
-          </div>
+          <label htmlFor="calculationType">Calculation Type:</label>
+          <select
+            id="calculationType"
+            value={calculationType}
+            onChange={(e) => setCalculationType(e.target.value)}
+          >
+            <option value="duration">Calculate Working Days</option>
+            <option value="endDate">Calculate End Date</option>
+          </select>
         </div>
 
         <div className="form-group">
-          <label htmlFor="country">Country (required for end date calculation):</label>
+          <label htmlFor="country">Country:</label>
           <select
             id="country"
             value={selectedCountry}
             onChange={(e) => setSelectedCountry(e.target.value)}
-            required={calculationType === 'endDate'}
+            required
           >
             <option value="">Select a country</option>
-            {Object.keys(countryToCode).sort().map((country) => (
+            {countries.map((country) => (
               <option key={country} value={country}>
                 {country}
               </option>
