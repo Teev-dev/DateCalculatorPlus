@@ -1,5 +1,7 @@
 # Date Calculator Plus
 
+[![CI](https://github.com/Teev-dev/DateCaluclatorPlus/actions/workflows/ci.yml/badge.svg)](https://github.com/Teev-dev/DateCaluclatorPlus/actions/workflows/ci.yml)
+
 A modern web application for calculating working days between dates, taking into account holidays and weekends across different countries.
 
 ## Features

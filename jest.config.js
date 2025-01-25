@@ -18,6 +18,23 @@ module.exports = {
   silent: true,
   // Mock all .css imports
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': '<rootDir>/tests/mocks/styleMock.js'
-  }
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx}',
+    '!src/index.js',
+    '!src/**/*.test.{js,jsx}',
+    '!**/node_modules/**',
+  ],
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 }; 
