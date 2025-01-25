@@ -1,115 +1,148 @@
 # Date Calculator Plus
 
-Date Calculator Plus is a Google Chrome extension that allows users to calculate future or past dates based on working days for various countries. It also provides functionality to calculate the number of working days between two dates.
+A modern web application for calculating working days between dates, taking into account holidays and weekends across different countries.
 
-## Setup
+## Features
 
-1. Clone the repository
+- **Working Days Calculator**
+  - Calculate the number of working days between two dates
+  - Calculate end dates based on a number of working days
+  - Automatic handling of weekends and public holidays
+  - Support for multiple countries
+
+- **Holiday Integration**
+  - Real-time holiday data from Nager.Date API
+  - Automatic caching of holiday information
+  - Support for multiple countries and regions
+
+- **User Interface**
+  - Clean, modern design
+  - Quick select buttons for common calculations
+  - Responsive layout for all devices
+  - Detailed results with holiday information
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone [repository-url]
+cd date-calculator-plus
+```
+
 2. Install dependencies:
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
-   - Copy `.env.template` to `.env`
-   - Fill in your API keys and tokens:
-     - `REACT_APP_HOLIDAY_API_KEY`: Your holiday API key (if required)
-     - `REACT_APP_GITHUB_TOKEN`: Your GitHub personal access token
-
-   To create a GitHub personal access token:
-   1. Go to GitHub Settings > Developer settings > Personal access tokens
-   2. Click "Generate new token"
-   3. Select the necessary scopes for your application
-   4. Copy the token and paste it in your `.env` file
-
-   Note: Never commit your `.env` file or share your tokens publicly!
+   - Copy `.env.template` to `.env`:
+     ```bash
+     cp .env.template .env
+     ```
+   - Configure the following variables in `.env`:
+     ```plaintext
+     REACT_APP_HOLIDAY_API_BASE_URL=https://date.nager.at/api/v3
+     REACT_APP_HOLIDAY_API_KEY=your_api_key_here
+     REACT_APP_ENABLE_HOLIDAY_CACHING=true
+     REACT_APP_MAX_YEAR_RANGE=5
+     ```
 
 4. Start the development server:
 ```bash
 npm start
 ```
 
+The application will be available at `http://localhost:3000`
+
 ## Available Scripts
 
-- `npm start` - Runs the app in development mode
-- `npm test` - Launches the test runner
-- `npm run build` - Builds the app for production
-- `npm run lint` - Runs the linter
+- `npm start` - Starts the development server
+- `npm test` - Runs the test suite
+  - `npm run test:unit` - Runs unit tests
+  - `npm run test:integration` - Runs integration tests
+  - `npm run test:e2e` - Runs end-to-end tests with Cypress
+- `npm run build` - Creates a production build
+- `npm run lint` - Checks code style
 - `npm run format` - Formats code with Prettier
 
-## Features
+## Testing
 
-- Calculate future or past dates based on a given number of working days
-- Calculate the number of working days between two dates
-- Support for multiple countries with their respective public holidays
-- Automatic handling of weekends and public holidays
-- User-friendly interface with intuitive controls
-- Country search functionality
-- Display of country flags
-- Real-time calculations
-- Responsive design
+The application includes comprehensive test coverage:
 
-## Installation
+- **Unit Tests**: Testing individual components and utilities
+- **Integration Tests**: Testing API integration and service interactions
+- **E2E Tests**: Testing complete user workflows with Cypress
 
-1. Download the extension files or clone the repository.
-2. Open Google Chrome and navigate to `chrome://extensions/`.
-3. Enable "Developer mode" in the top right corner.
-4. Click "Load unpacked" and select the directory containing the extension files.
-5. The Date Calculator Plus extension should now appear in your Chrome toolbar.
+Run the full test suite:
+```bash
+npm test
+```
 
-## Usage
+## Project Structure
 
-1. Click on the Date Calculator Plus icon in your Chrome toolbar to open the extension popup.
-2. Choose the calculation mode:
-   - "Calculate Future/Past Date": To find a date in the future or past based on working days
-   - "Calculate Working Days Between Dates": To count working days between two dates
-3. Enter the required information:
-   - Start Date
-   - Number of Working Days (for Future/Past Date calculation)
-   - End Date (for Working Days Between Dates calculation)
-   - Country (use the search functionality to find your desired country)
-   - Direction (Future or Past, for Future/Past Date calculation)
-4. Click "Calculate" to see the result.
+```
+src/
+├── features/
+│   ├── calculator/     # Calculator feature
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── styles/
+│   ├── holidays/       # Holiday management
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── styles/
+│   └── shared/        # Shared components
+├── config/           # Application configuration
+└── index.js         # Application entry point
+```
 
-## Development
+## API Integration
 
-This extension is built using HTML, CSS, and JavaScript. It uses the following libraries:
+The application integrates with the Nager.Date API for holiday data. Key features:
 
-- date-fns: For date manipulation and calculations
-
-To set up the development environment:
-
-1. Ensure you have Python installed on your system.
-2. Clone the repository and navigate to the project directory.
-3. Run the development server using the command: `python -m http.server 8000`
-4. Make changes to the source files in the `scripts` directory.
-
-### Reloading the Extension After Changes
-
-After making changes to the extension:
-
-1. Go to `chrome://extensions/` in your Chrome browser.
-2. Find the Date Calculator Plus extension.
-3. Click the circular refresh icon next to the extension to reload it.
-4. Open the extension popup to see your changes.
+- Automatic caching of holiday data
+- Rate limiting protection
+- Error handling and retry logic
+- Support for multiple countries
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-new-feature`
+5. Submit a pull request
+
+### Development Guidelines
+
+- Write tests for new features
+- Follow the existing code style
+- Update documentation as needed
+- Add comments for complex logic
+
+## Security
+
+- Environment variables prefixed with `REACT_APP_` are exposed to the client
+- API keys should be kept secure and not committed to version control
+- Regular security audits are performed on dependencies
+- Rate limiting is implemented for API calls
 
 ## License
 
-This project is licensed under the ISC License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
-- [date-fns](https://date-fns.org/) for providing excellent date manipulation utilities
-- [OpenHolidays API](https://openholidaysapi.org/) for public holiday data
-- [flag-icons](https://flagicons.lipis.dev/) for providing country flag icons
-
-## Security Notes
-
-- Environment variables prefixed with `REACT_APP_` are exposed to the client
-- The GitHub token should only have the minimum required permissions
-- Regularly rotate your access tokens
-- Monitor token usage in GitHub security settings
+- [Nager.Date API](https://date.nager.at/) for holiday data
+- [React](https://reactjs.org/) for the UI framework
+- [date-fns](https://date-fns.org/) for date manipulation
+- [Jest](https://jestjs.io/) and [Cypress](https://www.cypress.io/) for testing
