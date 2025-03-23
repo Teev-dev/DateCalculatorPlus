@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
+const rootDir = path.resolve(__dirname, '..');
+
 // Define environment variables
 const envVars = {
   'process.env.REACT_APP_HOLIDAY_API_BASE_URL': JSON.stringify(process.env.REACT_APP_HOLIDAY_API_BASE_URL || 'https://date.nager.at/api/v3'),
@@ -14,9 +16,9 @@ const envVars = {
 };
 
 module.exports = {
-  entry: './src/index.js',
+  entry: path.resolve(rootDir, 'src/index.js'),
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(rootDir, 'dist'),
     filename: 'bundle.js',
     clean: true,
     publicPath: '/'
@@ -24,7 +26,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -41,18 +43,32 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './public/index.html'
+      template: path.resolve(rootDir, 'public/index.html'),
+      filename: 'index.html'
     }),
-    // Define environment variables individually
     new webpack.DefinePlugin(envVars)
   ],
   devServer: {
     static: {
-      directory: path.join(__dirname, '../public')
+      directory: path.resolve(rootDir, 'public')
     },
     historyApiFallback: true,
     hot: true,
-    open: true,
-    port: 3000
-  }
+    port: 3000,
+    host: '0.0.0.0',
+    allowedHosts: 'all',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+    },
+    client: {
+      webSocketURL: 'auto://0.0.0.0:0/ws'
+    }
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    modules: [path.resolve(rootDir, 'node_modules')]
+  },
+  mode: 'development'
 };

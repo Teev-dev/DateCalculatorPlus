@@ -107,12 +107,11 @@ class HolidayCache {
 export const holidayCache = new HolidayCache();
 
 // API Error handling
-export class APIError extends Error {
-  constructor(message, status, code) {
+export class HolidayApiError extends Error {
+  constructor(message, statusCode = 500) {
     super(message);
-    this.name = 'APIError';
-    this.status = status;
-    this.code = code;
+    this.name = 'HolidayApiError';
+    this.statusCode = statusCode;
   }
 }
 
@@ -145,7 +144,7 @@ export const handleAPIResponse = async (response) => {
       }
     }
     
-    throw new APIError(errorMessage, response.status);
+    throw new HolidayApiError(errorMessage, response.status);
   }
   
   return response.json();
@@ -161,12 +160,12 @@ const validateRequest = (endpoint) => {
         baseUrl: API_CONFIG.HOLIDAY_API.BASE_URL,
         url: url.href
       });
-      throw new APIError('Invalid API endpoint', 400);
+      throw new HolidayApiError('Invalid API endpoint', 400);
     }
     return url;
   } catch (error) {
-    if (error instanceof APIError) throw error;
-    throw new APIError('Invalid URL format', 400);
+    if (error instanceof HolidayApiError) throw error;
+    throw new HolidayApiError('Invalid URL format', 400);
   }
 };
 
@@ -193,7 +192,7 @@ const checkRateLimit = (endpoint) => {
   // Check current endpoint's rate limit
   const timestamps = RATE_LIMIT.requests.get(endpoint) || [];
   if (timestamps.length >= RATE_LIMIT.MAX_REQUESTS) {
-    throw new APIError('Rate limit exceeded. Please try again later.', 429);
+    throw new HolidayApiError('Rate limit exceeded. Please try again later.', 429);
   }
   
   // Add new request timestamp
@@ -225,10 +224,10 @@ export const createAPIRequest = (endpoint) => {
     });
   } catch (error) {
     console.error('Request creation error:', error);
-    if (error instanceof APIError) {
+    if (error instanceof HolidayApiError) {
       throw error;
     }
-    throw new APIError('Invalid request configuration', 400);
+    throw new HolidayApiError('Invalid request configuration', 400);
   }
 };
 

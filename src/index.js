@@ -18,7 +18,11 @@ const App = () => {
           <Route path="/" element={
             <div className="welcome-content">
               <h2>Welcome to Date Calculator Plus</h2>
-              <p>Select a feature from the navigation menu to get started.</p>
+              <p>A powerful tool for calculating working days across different countries.</p>
+              <div className="welcome-actions">
+                <a href="/calculator" className="welcome-button">Calculate Working Days</a>
+                <a href="/holidays" className="welcome-button">View Holidays</a>
+              </div>
             </div>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -28,6 +32,9 @@ const App = () => {
   );
 };
 
-const container = document.getElementById('root');
-const root = createRoot(container);
-root.render(<App />); 
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+); 

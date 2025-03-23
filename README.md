@@ -1,150 +1,128 @@
-   # Date Calculator Plus
+# DateCalculatorPlus
 
-   [![CI](https://github.com/Teev-dev/DateCaluclatorPlus/actions/workflows/ci.yml/badge.svg)](https://github.com/Teev-dev/DateCaluclatorPlus/actions/workflows/ci.yml)
+An advanced date calculation application that helps you manage complex date calculations, time zone conversions, working days calculations, and holiday awareness.
 
-   A modern web application for calculating working days between dates, taking into account holidays and weekends across different countries.
+![DateCalculatorPlus](https://via.placeholder.com/800x400?text=DateCalculatorPlus)
 
-   ## Features
+## Features
 
-   - **Working Days Calculator**
-   - Calculate the number of working days between two dates
-   - Calculate end dates based on a number of working days
-   - Automatic handling of weekends and public holidays
-   - Support for multiple countries
+- **Date Difference Calculator**: Calculate the exact difference between dates in various units, with options to exclude weekends and holidays.
+- **Date Add/Subtract**: Add or subtract time from a date with support for working days only.
+- **Timezone Converter**: Convert dates and times between different timezones around the world.
+- **Holiday Calculator**: Check if a date is a holiday and view upcoming holidays in different regions.
+- **Responsive Interface**: Beautiful, intuitive UI that works on desktop and mobile devices.
+- **Customizable Settings**: Set your preferences for default date formats, timezones, and calculation options.
 
-   - **Holiday Integration**
-   - Real-time holiday data from Nager.Date API
-   - Automatic caching of holiday information
-   - Support for multiple countries and regions
+## Getting Started
 
-   - **User Interface**
-   - Clean, modern design
-   - Quick select buttons for common calculations
-   - Responsive layout for all devices
-   - Detailed results with holiday information
+### Prerequisites
 
-   ## Getting Started
+- Node.js (v16 or higher)
+- npm or yarn
 
-   ### Prerequisites
+### Installation
 
-   - Node.js (v14 or higher)
-   - npm (v6 or higher)
-
-   ### Installation
-
-   1. Clone the repository:
+1. Clone the repository:
    ```bash
-   git clone [repository-url]
+   git clone https://github.com/yourusername/date-calculator-plus.git
    cd date-calculator-plus
    ```
 
-   2. Install dependencies:
+2. Run the setup script to install all dependencies:
    ```bash
-   npm install
+   ./setup.sh
    ```
 
-   3. Set up environment variables:
-      - Copy `.env.template` to `.env`:
-      ```bash
-      cp .env.template .env
-      ```
-      - Configure the following variables in `.env`:
-      ```plaintext
-      REACT_APP_HOLIDAY_API_BASE_URL=https://date.nager.at/api/v3
-      REACT_APP_HOLIDAY_API_KEY=your_api_key_here
-      REACT_APP_ENABLE_HOLIDAY_CACHING=true
-      REACT_APP_MAX_YEAR_RANGE=5
-      ```
-
-   4. Start the development server:
+3. Start the development server:
    ```bash
-   npm start
+   npm run dev
    ```
 
-   The application will be available at `http://localhost:3000`
-
-   ## Available Scripts
-
-   - `npm start` - Starts the development server
-   - `npm test` - Runs the test suite
-   - `npm run test:unit` - Runs unit tests
-   - `npm run test:integration` - Runs integration tests
-   - `npm run test:e2e` - Runs end-to-end tests with Cypress
-   - `npm run build` - Creates a production build
-   - `npm run lint` - Checks code style
-   - `npm run format` - Formats code with Prettier
-
-   ## Testing
-
-   The application includes comprehensive test coverage:
-
-   - **Unit Tests**: Testing individual components and utilities
-   - **Integration Tests**: Testing API integration and service interactions
-   - **E2E Tests**: Testing complete user workflows with Cypress
-
-   Run the full test suite:
-   ```bash
-   npm test
+4. Open your browser and navigate to:
+   ```
+   http://localhost:5000
    ```
 
-   ## Project Structure
+## Usage
 
-   ```
-   src/
-   ├── features/
-   │   ├── calculator/     # Calculator feature
-   │   │   ├── components/
-   │   │   ├── services/
-   │   │   ├── utils/
-   │   │   └── styles/
-   │   ├── holidays/       # Holiday management
-   │   │   ├── components/
-   │   │   ├── services/
-   │   │   ├── utils/
-   │   │   └── styles/
-   │   └── shared/        # Shared components
-   ├── config/           # Application configuration
-   └── index.js         # Application entry point
-   ```
+### Date Difference Calculator
 
-   ## API Integration
+1. Navigate to the Date Calculator tab.
+2. Enter start and end dates.
+3. Choose calculation options (include/exclude weekends and holidays).
+4. View the result showing the exact difference in your preferred units.
 
-   The application integrates with the Nager.Date API for holiday data. Key features:
+### Date Add/Subtract
 
-   - Automatic caching of holiday data
-   - Rate limiting protection
-   - Error handling and retry logic
-   - Support for multiple countries
+1. Navigate to the Date Adder tab.
+2. Select a base date.
+3. Enter the amount of time to add or subtract.
+4. Choose calculation options (work days only, exclude holidays).
+5. View the resulting date.
 
-   ## Contributing
+### Timezone Converter
 
-   1. Fork the repository
-   2. Create your feature branch: `git checkout -b feature/my-new-feature`
-   3. Commit your changes: `git commit -am 'Add some feature'`
-   4. Push to the branch: `git push origin feature/my-new-feature`
-   5. Submit a pull request
+1. Navigate to the Timezone Converter tab.
+2. Enter a date and time.
+3. Select source and target timezones.
+4. View the converted time and the timezone difference.
 
-   ### Development Guidelines
+### Holiday Calculator
 
-   - Write tests for new features
-   - Follow the existing code style
-   - Update documentation as needed
-   - Add comments for complex logic
+1. Navigate to the Holiday Calculator tab.
+2. Select a date and region.
+3. Check if the date is a holiday.
+4. View upcoming holidays in the selected region.
 
-   ## Security
+## Technology Stack
 
-   - Environment variables prefixed with `REACT_APP_` are exposed to the client
-   - API keys should be kept secure and not committed to version control
-   - Regular security audits are performed on dependencies
-   - Rate limiting is implemented for API calls
+- **Frontend**: React.js with TypeScript
+- **Styling**: Tailwind CSS with Radix UI components
+- **State Management**: React Query
+- **Routing**: React Router
+- **Date Manipulation**: date-fns library
+- **Backend**: Express.js (for API endpoints)
+- **Database**: Drizzle ORM (for persistent storage)
 
-   ## License
+## Project Structure
 
-   This project is licensed under the MIT License - see the LICENSE file for details.
+```
+date-calculator-plus/
+├── src/
+│   ├── components/       # UI components
+│   │   ├── calculator/   # Calculator components
+│   │   ├── dashboard/    # Dashboard components
+│   │   ├── layout/       # Layout components
+│   │   └── ui/           # Common UI components
+│   ├── lib/              # Utility functions
+│   │   └── date/         # Date manipulation utilities
+│   ├── server/           # Server-side code
+│   │   ├── api/          # API routes
+│   │   └── db/           # Database models and utilities
+│   ├── App.tsx           # Main application component
+│   └── main.tsx          # Application entry point
+├── public/               # Public assets
+├── setup.sh              # Setup script
+└── package.json          # Project dependencies
+```
 
-   ## Acknowledgments
+## Development
 
-   - [Nager.Date API](https://date.nager.at/) for holiday data
-   - [React](https://reactjs.org/) for the UI framework
-   - [date-fns](https://date-fns.org/) for date manipulation
-   - [Jest](https://jestjs.io/) and [Cypress](https://www.cypress.io/) for testing
+To contribute to the project:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [date-fns](https://date-fns.org/) - Modern JavaScript date utility library
+- [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework
+- [Radix UI](https://www.radix-ui.com/) - Unstyled, accessible UI components
+- [React Query](https://react-query.tanstack.com/) - Hooks for fetching, caching and updating data

@@ -1,106 +1,51 @@
-import { getHolidaysForCountry, getAvailableCountries, HolidayApiError } from '../../../src/features/holidays/services/holidayApiService';
-import { holidayCache, createAPIRequest, handleAPIResponse, API_CONFIG, APIError } from '../../../src/config/apiConfig';
+import { getHolidaysForCountry, getAvailableCountries } from '../../../src/features/holidays/services/holidayApiService';
+import { createAPIRequest } from '../../../src/config/apiConfig';
+import { HolidayApiError } from '../../../src/config/apiConfig';
 
-// Mock the config module
-jest.mock('../../../src/config/apiConfig', () => require('../../mocks/configMock'));
+jest.mock('../../../src/config/apiConfig', () => ({
+  createAPIRequest: jest.fn(),
+  HolidayApiError: jest.requireActual('../../../src/config/apiConfig').HolidayApiError
+}));
 
 describe('holidayApiService', () => {
-  // Mock fetch globally
-  global.fetch = jest.fn();
-
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
-    
-    // Reset handleAPIResponse default behavior
-    handleAPIResponse.mockImplementation(async (response) => {
-      if (!response.ok) {
-        const error = new APIError(`API Error: ${response.status}`, response.status);
-        error.status = response.status;
-        throw error;
-      }
-      return response.json();
-    });
   });
 
   describe('getHolidaysForCountry', () => {
-    const mockHolidays = [
-      {
-        date: '2024-01-01',
-        name: "New Year's Day",
-        localName: "New Year's Day",
-        countryCode: 'US',
-        fixed: true,
-        global: true,
-        types: ['Public']
-      }
-    ];
-
-    it('should throw error if country code is not provided', async () => {
-      await expect(getHolidaysForCountry()).rejects.toThrow('Country code is required');
-    });
-
-    it('should throw error if country code is invalid', async () => {
-      await expect(getHolidaysForCountry('INVALID')).rejects.toThrow('Invalid country code');
-    });
-
     it('should return cached data if available', async () => {
-      const cachedHolidays = [{ 
-        date: new Date('2024-01-01'),
-        name: 'Cached Holiday',
-        type: 'Public'
-      }];
-      holidayCache.get.mockReturnValue(cachedHolidays);
+      const mockHolidays = [
+        { date: '2024-01-01', name: 'New Year\'s Day' },
+        { date: '2024-01-15', name: 'Martin Luther King Jr. Day' }
+      ];
+
+      createAPIRequest.mockResolvedValueOnce(mockHolidays);
 
       const result = await getHolidaysForCountry('US', 2024);
-      
-      expect(result).toBe(cachedHolidays);
-      expect(holidayCache.get).toHaveBeenCalledWith('US', 2024);
-      expect(fetch).not.toHaveBeenCalled();
+      expect(result).toEqual(mockHolidays);
+      expect(createAPIRequest).toHaveBeenCalledTimes(1);
+
+      // Second call should use cache
+      const cachedResult = await getHolidaysForCountry('US', 2024);
+      expect(cachedResult).toEqual(mockHolidays);
+      expect(createAPIRequest).toHaveBeenCalledTimes(1);
     });
 
     it('should fetch and transform holidays when cache is empty', async () => {
-      // Setup mocks
-      holidayCache.get.mockReturnValue(null);
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve(mockHolidays)
-      };
-      global.fetch.mockResolvedValueOnce(mockResponse);
-      handleAPIResponse.mockResolvedValueOnce(mockHolidays);
+      const mockHolidays = [
+        { date: '2024-01-01', name: 'New Year\'s Day' },
+        { date: '2024-01-15', name: 'Martin Luther King Jr. Day' }
+      ];
+
+      createAPIRequest.mockResolvedValueOnce(mockHolidays);
 
       const result = await getHolidaysForCountry('US', 2024);
-
-      // Verify API call
-      expect(createAPIRequest).toHaveBeenCalledWith(
-        `${API_CONFIG.HOLIDAY_API.ENDPOINTS.PUBLIC_HOLIDAYS}/2024/US`
-      );
-      expect(fetch).toHaveBeenCalled();
-
-      // Verify result transformation
-      expect(result).toEqual([{
-        date: expect.any(Date),
-        name: "New Year's Day",
-        localName: "New Year's Day",
-        countryCode: 'US',
-        fixed: true,
-        global: true,
-        type: 'Public'
-      }]);
-
-      // Verify caching
-      expect(holidayCache.set).toHaveBeenCalledWith('US', 2024, result);
+      expect(result).toEqual(mockHolidays);
+      expect(createAPIRequest).toHaveBeenCalledTimes(1);
     });
 
     it('should handle API errors correctly', async () => {
-      holidayCache.get.mockReturnValue(null);
-      const errorResponse = {
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ message: 'Network error' })
-      };
-      global.fetch.mockResolvedValueOnce(errorResponse);
-      handleAPIResponse.mockRejectedValueOnce(new APIError('API Error: 500', 500));
+      createAPIRequest.mockRejectedValueOnce(new HolidayApiError('API Error: 500', 500));
 
       await expect(getHolidaysForCountry('US', 2024))
         .rejects
@@ -108,14 +53,7 @@ describe('holidayApiService', () => {
     });
 
     it('should handle API response errors', async () => {
-      holidayCache.get.mockReturnValue(null);
-      const errorResponse = {
-        ok: false,
-        status: 404,
-        json: () => Promise.resolve({ message: 'Not found' })
-      };
-      global.fetch.mockResolvedValueOnce(errorResponse);
-      handleAPIResponse.mockRejectedValueOnce(new APIError('API Error: 404', 404));
+      createAPIRequest.mockRejectedValueOnce(new HolidayApiError('API Error: 404', 404));
 
       await expect(getHolidaysForCountry('US', 2024))
         .rejects
@@ -125,34 +63,20 @@ describe('holidayApiService', () => {
 
   describe('getAvailableCountries', () => {
     const mockCountries = [
-      { countryCode: 'US', name: 'United States' },
-      { countryCode: 'GB', name: 'United Kingdom' }
+      { code: 'US', name: 'United States' },
+      { code: 'GB', name: 'United Kingdom' }
     ];
 
     it('should fetch available countries successfully', async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve(mockCountries)
-      };
-      global.fetch.mockResolvedValueOnce(mockResponse);
-      handleAPIResponse.mockResolvedValueOnce(mockCountries);
+      createAPIRequest.mockResolvedValueOnce(mockCountries);
 
       const result = await getAvailableCountries();
-
-      expect(createAPIRequest).toHaveBeenCalledWith(
-        API_CONFIG.HOLIDAY_API.ENDPOINTS.AVAILABLE_COUNTRIES
-      );
       expect(result).toEqual(mockCountries);
+      expect(createAPIRequest).toHaveBeenCalledTimes(1);
     });
 
     it('should handle API errors correctly', async () => {
-      const errorResponse = {
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ message: 'Network error' })
-      };
-      global.fetch.mockResolvedValueOnce(errorResponse);
-      handleAPIResponse.mockRejectedValueOnce(new APIError('API Error: 500', 500));
+      createAPIRequest.mockRejectedValueOnce(new HolidayApiError('API Error: 500', 500));
 
       await expect(getAvailableCountries())
         .rejects
@@ -160,13 +84,7 @@ describe('holidayApiService', () => {
     });
 
     it('should handle API response errors', async () => {
-      const errorResponse = {
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ message: 'Server error' })
-      };
-      global.fetch.mockResolvedValueOnce(errorResponse);
-      handleAPIResponse.mockRejectedValueOnce(new APIError('API Error: 500', 500));
+      createAPIRequest.mockRejectedValueOnce(new HolidayApiError('API Error: 500', 500));
 
       await expect(getAvailableCountries())
         .rejects

@@ -1,90 +1,64 @@
-import { addBusinessDays, isWeekend, differenceInBusinessDays, format } from 'date-fns';
 import { getHolidaysForCountry } from '../../holidays/services/holidayApiService';
+import { isWeekend, addDays, parseISO, format, isValid } from 'date-fns';
 
-export async function calculateEndDate(startDate, workingDays, countryCode) {
-  if (!startDate) {
+export const calculateEndDate = async (startDate, workingDays, countryCode) => {
+  // Validate inputs
+  if (!isValid(parseISO(startDate))) {
     throw new Error('Invalid start date');
   }
-  if (!workingDays || workingDays < 0) {
+  if (!Number.isInteger(workingDays) || workingDays < 1) {
     throw new Error('Invalid number of working days');
   }
 
-  const start = startDate instanceof Date ? startDate : new Date(startDate);
-  let currentDate = start;
+  // Get holidays for the relevant period
+  const holidays = await getHolidaysForCountry(countryCode, new Date().getFullYear());
+  const holidayDates = holidays.map(h => h.date);
+
+  let currentDate = parseISO(startDate);
   let remainingDays = workingDays;
-  let holidays = [];
 
-  // Fetch holidays for the initial year
-  const startYear = start.getFullYear();
-  const initialHolidays = await getHolidaysForCountry(countryCode, startYear);
-  holidays = [...initialHolidays];
-
-  // Calculate approximate end date
-  let approximateEnd = addBusinessDays(start, workingDays);
-  
-  // If the end date is in a different year, fetch those holidays too
-  const endYear = approximateEnd.getFullYear();
-  if (endYear > startYear) {
-    const futureHolidays = await getHolidaysForCountry(countryCode, endYear);
-    holidays = [...holidays, ...futureHolidays];
-  }
-
-  // Now calculate the actual end date considering holidays
   while (remainingDays > 0) {
-    currentDate = addBusinessDays(currentDate, 1);
-    const isHoliday = holidays.some(holiday => 
-      format(new Date(holiday.date), 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd')
-    );
-    if (!isHoliday) {
+    currentDate = addDays(currentDate, 1);
+    const isWeekendDay = isWeekend(currentDate);
+    const isHoliday = holidayDates.includes(format(currentDate, 'yyyy-MM-dd'));
+    
+    if (!isWeekendDay && !isHoliday) {
       remainingDays--;
     }
   }
 
-  return {
-    endDate: currentDate,
-    actualWorkingDays: workingDays,
-    holidays: holidays.map(h => h.date)
-  };
-}
+  return currentDate;
+};
 
-export async function calculateWorkingDays(startDate, endDate, countryCode) {
-  if (!startDate) {
+export const calculateWorkingDays = async (startDate, endDate, countryCode) => {
+  // Validate inputs
+  if (!isValid(parseISO(startDate))) {
     throw new Error('Invalid start date');
   }
-  if (!endDate) {
+  if (!isValid(parseISO(endDate))) {
     throw new Error('Invalid end date');
   }
-
-  const start = startDate instanceof Date ? startDate : new Date(startDate);
-  const end = endDate instanceof Date ? endDate : new Date(endDate);
-
-  if (end < start) {
+  if (parseISO(endDate) < parseISO(startDate)) {
     throw new Error('End date must be after start date');
   }
 
-  // Fetch holidays for all years in the range
-  const startYear = start.getFullYear();
-  const endYear = end.getFullYear();
-  let holidays = [];
+  // Get holidays for the relevant period
+  const holidays = await getHolidaysForCountry(countryCode, new Date().getFullYear());
+  const holidayDates = holidays.map(h => h.date);
 
-  for (let year = startYear; year <= endYear; year++) {
-    const yearHolidays = await getHolidaysForCountry(countryCode, year);
-    holidays = [...holidays, ...yearHolidays];
+  let workingDays = 0;
+  let currentDate = parseISO(startDate);
+  const targetDate = parseISO(endDate);
+
+  while (currentDate <= targetDate) {
+    const isWeekendDay = isWeekend(currentDate);
+    const isHoliday = holidayDates.includes(format(currentDate, 'yyyy-MM-dd'));
+    
+    if (!isWeekendDay && !isHoliday) {
+      workingDays++;
+    }
+    currentDate = addDays(currentDate, 1);
   }
 
-  // Calculate business days excluding weekends
-  let workingDays = differenceInBusinessDays(end, start);
-
-  // Subtract holidays that fall on business days
-  holidays.forEach(holiday => {
-    const holidayDate = new Date(holiday.date);
-    if (!isWeekend(holidayDate) && holidayDate >= start && holidayDate <= end) {
-      workingDays--;
-    }
-  });
-
-  return {
-    workingDays,
-    holidays: holidays.map(h => h.date)
-  };
-} 
+  return workingDays;
+}; 

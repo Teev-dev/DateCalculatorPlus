@@ -1,0 +1,71 @@
+# Cursor Settings for DateCalculatorPlus
+
+## Project Configuration
+```
+projectName: "DateCalculatorPlus"
+mainBranch: "main"
+documentationRoot: "./development.md"
+updateLog: "./cursor-updates.md"
+```
+
+## Core Documentation Files
+```
+documentationFiles:
+  - README.md          # Project overview and quick start
+  - development.md     # Comprehensive development guide
+  - cursorrules.md     # Technical standards
+  - cursor-updates.md  # Development progress tracking
+  - deployment.md      # Deployment instructions
+```
+
+## Documentation Workflow
+```
+documentationWorkflow:
+  # Avoid creating new markdown files for specific features
+  consolidateDocs: true
+  
+  # Update existing docs instead of creating new ones
+  preferExistingDocs: true
+  
+  # Use sections in development.md for specific topics
+  useDevSections: true
+  
+  # Keep cursor-updates.md as development progress source of truth
+  trackProgressIn: "cursor-updates.md"
+  
+  # Limit README.md updates to essential changes only
+  limitReadmeUpdates: true
+  
+  # Run update script after making significant changes
+  postUpdateCommand: "./update-cursor-date.sh"
+
+## Editor Settings
+```
+editor:
+  # Show line numbers for better documentation reference
+  lineNumbers: true
+  
+  # Enable word wrap for documentation files
+  wordWrapForMd: true
+  
+  # Enable spellcheck for documentation files
+  spellcheckForMd: true
+  
+  # Use markdown preview for .md files
+  mdPreview: true
+  
+  # Auto-update table of contents in markdown files
+  updateToc: true
+```
+
+## Core Stack
+```
+frontend: "React/Next.js + Vite"
+styling: "Tailwind CSS + Radix UI"
+state: "React Query"
+backend: "Express + Drizzle ORM"
+hosting: "Replit (port 5000)"
+```
+
+## Technical Standards
+See cursorrules.md for detailed technical standards. 
