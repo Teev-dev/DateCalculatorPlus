@@ -1,11 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Date Calculator Plus</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DateCalculatorPlus</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    
+    header {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #2563eb;
+      margin-top: 0;
+    }
+    
+    .content {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .status h3 {
+      margin-top: 0;
+      color: #1e40af;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      background-color: #dcfce7;
+      border: 2px solid #16a34a;
+    }
+    
+    .links {
+      margin-top: 30px;
+    }
+    
+    .links a {
+      display: inline-block;
+      margin-right: 15px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    
+    .links a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
+  <header>
+    <h1>DateCalculatorPlus</h1>
+    <p>Advanced date calculation tool for workdays, timezones, and holidays</p>
+  </header>
+
+  <main class="content">
+    <h2>Server Status</h2>
+    <p>If you're seeing this page, the server is running correctly! 🎉</p>
+    
+    <div class="status">
+      <h3><span class="status-indicator"></span> API Status</h3>
+      <p>The DateCalculatorPlus API is operational.</p>
+      <p>You can check API status at: <a href="/api/status">/api/status</a></p>
+    </div>
+    
+    <div class="links">
+      <h3>Quick Links</h3>
+      <a href="/api/test">Test API Endpoint</a>
+      <a href="https://github.com/yourusername/DateCalculatorPlus" target="_blank">GitHub Repository</a>
+    </div>
+  </main>
 </body>
-</html> 
+</html>

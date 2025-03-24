@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Test Page</title>
+</head>
+<body>
+  <h1>Test Page</h1>
+  <p>This is a simple test page to verify that HTML files are being served correctly.</p>
+  <p>Current time: <span id="currentTime"></span></p>
+  
+  <script>
+    document.getElementById('currentTime').textContent = new Date().toISOString();
+  </script>
+</body>
+</html> 

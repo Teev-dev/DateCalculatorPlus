@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DateCalculatorPlus Server Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .success {
+      color: green;
+      background-color: #f0fff0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .error {
+      color: red;
+      background-color: #fff0f0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .endpoint {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>DateCalculatorPlus Server Test</h1>
+  
+  <div class="container">
+    <h2>Test Server Connection</h2>
+    <p>This page tests connectivity to your DateCalculatorPlus server.</p>
+    
+    <div class="endpoints">
+      <div class="endpoint">Test Server Port 3000:</div>
+      <button onclick="testEndpoint('http://localhost:3000/api/status')">Test API Status</button>
+      <button onclick="testEndpoint('http://localhost:3000')">Test Homepage</button>
+      
+      <div class="endpoint">Main Server Port 8080:</div>
+      <button onclick="testEndpoint('http://localhost:8080/api/status')">Test API Status</button>
+      <button onclick="testEndpoint('http://localhost:8080/api/test')">Test API Endpoint</button>
+      <button onclick="testEndpoint('http://localhost:8080')">Test Homepage</button>
+    </div>
+    
+    <div id="results">
+      <h3>Results:</h3>
+      <div id="output">Click a button to test an endpoint.</div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <h2>Connection Troubleshooting</h2>
+    <ul>
+      <li>Make sure the server is running (use <code>npm run dev</code> or <code>node test-server.js</code>)</li>
+      <li>Check that the correct port is being used (3000 for test-server, 8080 for main server)</li>
+      <li>Verify there are no firewall or networking issues blocking connections</li>
+      <li>Check server logs for any error messages</li>
+    </ul>
+  </div>
+
+  <script>
+    async function testEndpoint(url) {
+      const output = document.getElementById('output');
+      output.innerHTML = `<div>Testing ${url}...</div>`;
+      
+      try {
+        const startTime = new Date().getTime();
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json, text/plain, */*'
+          }
+        });
+        const endTime = new Date().getTime();
+        const responseTime = endTime - startTime;
+        
+        let responseData;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          responseData = await response.json();
+        } else {
+          responseData = await response.text();
+          // Truncate HTML response to avoid overwhelming the output
+          if (responseData.length > 300) {
+            responseData = responseData.substring(0, 300) + '... [truncated]';
+          }
+        }
+        
+        if (response.ok) {
+          output.innerHTML = `
+            <div class="success">
+              ✅ Connection successful (${responseTime}ms)
+              <br>Status: ${response.status} ${response.statusText}
+            </div>
+            <pre>${JSON.stringify(responseData, null, 2)}</pre>
+          `;
+        } else {
+          output.innerHTML = `
+            <div class="error">
+              ❌ Connection error: ${response.status} ${response.statusText}
+              <br>Response time: ${responseTime}ms
+            </div>
+            <pre>${JSON.stringify(responseData, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        output.innerHTML = `
+          <div class="error">
+            ❌ Connection failed
+            <br>Error: ${error.message}
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html> 
